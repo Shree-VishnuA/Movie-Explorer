@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import Landing from './Landing.jsx'
 import Layout from './Layout.jsx';
+import SearchResults from './SearchResults.jsx';
 import { createHashRouter, RouterProvider } from "react-router-dom";
 
 const router = createHashRouter([
@@ -14,8 +15,8 @@ const router = createHashRouter([
         element: <Landing />,
       },
       {
-        path: "",
-        element:<></>,
+        path:"/search/:query",
+        element:<SearchResults />,
       },
       {
         path: "",
