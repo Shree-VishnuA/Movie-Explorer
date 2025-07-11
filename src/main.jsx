@@ -1,6 +1,9 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import Landing from './Landing.jsx'
+import Movies from './Movies.jsx'
+import TVshows from './TVshows.jsx';
+import People from './People.jsx';
+import Landing from './Landing.jsx';
 import Layout from './Layout.jsx';
 import SearchResults from './SearchResults.jsx';
 import { createHashRouter, RouterProvider } from "react-router-dom";
@@ -19,16 +22,16 @@ const router = createHashRouter([
         element:<SearchResults />,
       },
       {
-        path: "",
-        element: <></>,
+        path: "/Movies",
+        element: <Movies></Movies>,
       },
       {
-        path: "",
-        element:<></>,
+        path: "TVshows",
+        element:<TVshows></TVshows>,
       },
       {
-        path: "",
-        element: <></>,
+        path: "People",
+        element: <People></People>,
       },
     ],
   },

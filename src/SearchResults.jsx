@@ -30,7 +30,7 @@ function SearchResults() {
     try {
       const response = await fetch(
         `https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&api_key=${apikey}&query=${encodeURIComponent(
-          searchQuery
+          searchQuery+" "
         )}`
       );
       const data = await response.json();
@@ -76,7 +76,7 @@ function SearchResults() {
           </div>
         </div>
       ) : (
-        <div className="movie container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="movie container w-screen mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Section */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-6 gap-4 sm:gap-0">
             <button
@@ -121,11 +121,13 @@ function SearchResults() {
               </div>
               
               {/* Movies Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6 px-4 sm:px-6">
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-7">
                 {movies
                   .filter((movie) => movie.vote_count > 0)
+                  .filter((movie) => movie.poster_path || movie.backdrop_path)
+                  .sort((a, b) => b.vote_average - a.vote_average)
                   .map((movie) => (
-                    <div key={movie.id} className="flex justify-center">
+                    <div key={movie.id} className="flex-shrink-0 w-full max-w-sm sm:w-auto">
                       <MovieCard movie={movie} />
                     </div>
                   ))}

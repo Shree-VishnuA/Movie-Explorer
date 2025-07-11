@@ -1,40 +1,30 @@
 import Logo from "./Components/Logo";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 function Navbar({ onSearch, UserSearch, setUserSearch }) {
   const [RecentSearches, setRecentSearches] = useState([]);
   const [isSearchFocused, setisSearchFocused] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const apikey = import.meta.env.VITE_TMDB_API_KEY; // Changed to match your env format
-
-  // searching movie when user uses search bar
-  async function fetchSearchedMovies(searchQuery = UserSearch) {
+  // searching movie entered by user
+  function fetchSearchedMovies(searchQuery = UserSearch) {
     if (!searchQuery || searchQuery.trim() === "") {
       alert("Please enter a movie name");
       return;
     }
 
-    setLoading(true);
+    // Add to recent searches before fetching
+    setRecentSearches((prevSearches) => {
+      const newSearches = [
+        searchQuery,
+        ...prevSearches.filter((search) => search !== searchQuery),
+      ];
+      return newSearches.slice(0, 5);
+    });
 
-    try {
-      // Add to recent searches before navigation
-      setRecentSearches((prevSearches) => {
-        const newSearches = [
-          searchQuery,
-          ...prevSearches.filter((search) => search !== searchQuery),
-        ];
-        return newSearches.slice(0, 5);
-      });
-
-      setisSearchFocused(false);
-      onSearch(searchQuery); // This will now navigate to search page
-    } catch (error) {
-      console.log("Error finding this movie", error);
-    } finally {
-      setLoading(false);
-    }
+    setisSearchFocused(false);
+    onSearch(searchQuery); // This will now navigate to search page
   }
 
   // Handle clicking on a recent search
@@ -44,14 +34,31 @@ function Navbar({ onSearch, UserSearch, setUserSearch }) {
   }
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between sm:justify-evenly items-center border-b-[1px] py-2 px-4 sm:px-6 lg:px-8 gap-4 sm:gap-2 bg-amber-100">
-      {/* Logo Section */}
-      <div className="flex-shrink-0 order-1 sm:order-1">
-        <Logo />
+    <div className="flex flex-col sm:flex-row justify-between sm:justify-between items-center border-b-[1px] py-2 px-4 sm:px-6 lg:px-8 gap-4 sm:gap-2 bg-amber-100">
+      {/* Logo  */}
+      <div className="flex gap-10 justify-center items-center">
+        <div className="flex-shrink-0">
+          <Logo />
+        </div>
+        <NavLink to={"Movies"}>
+          <div className="border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:bg-gray-200">
+            Movies
+          </div>
+        </NavLink>
+        <NavLink to={"TVshows"}>
+          <div className="border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:bg-gray-200">
+            TV Shows
+          </div>
+        </NavLink>
+        <NavLink to={"People"}>
+          <div className="border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:bg-gray-200">
+            People
+          </div>
+        </NavLink>
       </div>
 
-      {/* Search Section */}
-      <div className="flex flex-col relative w-full sm:w-auto max-w-md sm:max-w-lg lg:max-w-xl order-2 sm:order-2">
+      {/* Search bar */}
+      <div className="flex flex-col relative w-full sm:w-auto max-w-md sm:max-w-lg lg:max-w-xl">
         <div className="flex border p-2 sm:p-3 rounded-full gap-2 justify-center items-center w-full">
           <div className="flex-1">
             <input
@@ -88,14 +95,13 @@ function Navbar({ onSearch, UserSearch, setUserSearch }) {
                 key={index}
                 className="p-3 hover:bg-gray-100 cursor-pointer text-sm hover:rounded-lg break-words"
                 onClick={() => handleRecentSearchClick(search)}
-                onMouseDown={(e) => e.preventDefault()} // Prevent blur on click
+                onMouseDown={(e) => e.preventDefault()}
               >
                 {search}
               </div>
             ))}
           </div>
         )}
-        
       </div>
     </div>
   );
