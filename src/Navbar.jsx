@@ -1,11 +1,29 @@
 import Logo from "./Components/Logo";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
 function Navbar({ onSearch, UserSearch, setUserSearch }) {
   const [RecentSearches, setRecentSearches] = useState([]);
   const [isSearchFocused, setisSearchFocused] = useState(false);
+  const searchContainerRef = useRef(null);
+
+  // for clicks outside the search bar
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setisSearchFocused(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // searching movie entered by user
   function fetchSearchedMovies(searchQuery = UserSearch) {
@@ -24,7 +42,7 @@ function Navbar({ onSearch, UserSearch, setUserSearch }) {
     });
 
     setisSearchFocused(false);
-    onSearch(searchQuery); // This will now navigate to search page
+    onSearch(searchQuery); 
   }
 
   // Handle clicking on a recent search
@@ -41,37 +59,54 @@ function Navbar({ onSearch, UserSearch, setUserSearch }) {
           <Logo />
         </div>
         <NavLink to={"Movies"}>
-          <div className="border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:bg-gray-200">
-            Movies
-          </div>
+          {({isActive}) => (
+            <div
+              className={`border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90 ${isActive?"bg-violet-500 text-white" :""}`}
+            >
+              Movies
+            </div>
+          )}
         </NavLink>
         <NavLink to={"TVshows"}>
-          <div className="border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:bg-gray-200">
-            TV Shows
-          </div>
+          {({isActive}) => (
+            <div
+              className={`border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90  ${isActive?"bg-violet-500 text-white" :""}`}
+            >
+              TV Shows
+            </div>
+          )}
         </NavLink>
         <NavLink to={"People"}>
-          <div className="border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:bg-gray-200">
-            People
-          </div>
+          {({isActive}) => (
+            <div
+              className={`border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90  ${isActive?"bg-violet-500 text-white" :""}`}
+            >
+             People
+            </div>
+          )}
         </NavLink>
       </div>
 
       {/* Search bar */}
-      <div className="flex flex-col relative w-full sm:w-auto max-w-md sm:max-w-lg lg:max-w-xl">
+      <div
+        className="flex flex-col relative sm:w-80 max-w-md sm:max-w-lg lg:max-w-xl"
+        ref={searchContainerRef}
+      >
         <div className="flex border p-2 sm:p-3 rounded-full gap-2 justify-center items-center w-full">
           <div className="flex-1">
             <input
               type="text"
-              placeholder="Search Movies here"
+              placeholder="Search Movies and TV-Shows here"
               className="focus:outline-none w-full text-sm sm:text-base px-2 sm:px-0"
               value={UserSearch}
               onChange={(e) => setUserSearch(e.target.value)}
               onFocus={() => setisSearchFocused(true)}
-              onBlur={() => setTimeout(() => setisSearchFocused(false), 150)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   fetchSearchedMovies();
+                }
+                if (e.key === "Escape") {
+                  setisSearchFocused(false);
                 }
               }}
             />
@@ -95,7 +130,6 @@ function Navbar({ onSearch, UserSearch, setUserSearch }) {
                 key={index}
                 className="p-3 hover:bg-gray-100 cursor-pointer text-sm hover:rounded-lg break-words"
                 onClick={() => handleRecentSearchClick(search)}
-                onMouseDown={(e) => e.preventDefault()}
               >
                 {search}
               </div>

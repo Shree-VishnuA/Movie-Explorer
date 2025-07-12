@@ -1,4 +1,4 @@
-import React from "react";
+;
 
 function MovieCard({ movie = {} }) {
   const getGenreNames = (genreIds) => {
@@ -136,7 +136,7 @@ function MovieCard({ movie = {} }) {
 
   return (
     <div className="w-80 max-w-sm mx-auto h-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-101 relative sm:max-w-md md:max-w-lg lg:max-w-sm xl:max-w-md">
-      {/* Backdrop/Poster Image  */}
+      {/* Backdrop Image  */}
       <div className="relative">
         <img
           src={`https://image.tmdb.org/t/p/w500${
@@ -146,7 +146,7 @@ function MovieCard({ movie = {} }) {
           className="w-full h-48 sm:h-56 md:h-64 lg:h-56 xl:h-64 object-contain"
         />
 
-        {/* Overlay with gradient */}
+        {/* Background with gradient */}
         {hasBackdrop && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         )}
@@ -159,20 +159,19 @@ function MovieCard({ movie = {} }) {
           </div>
         )}
 
-        {/* New Release Badge for movies releasing in future */}
+        {/* New Release Badge  */}
         {isNewRelease && (
           <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
             NEW
           </div>
         )}
 
-        {/* Popularity Indicator */}
+        {/* Popularity  */}
         <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-white/90 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
           🔥 {formatPopularity(movie?.popularity || 0)}
         </div>
       </div>
-
-      {/*Text Content of the movie*/}
+      
       <div className="p-3 sm:p-4 md:p-5">
         {/* Title */}
         <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 line-clamp-2 leading-tight">

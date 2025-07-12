@@ -5,6 +5,7 @@ import TVshows from './TVshows.jsx';
 import People from './People.jsx';
 import Landing from './Landing.jsx';
 import Layout from './Layout.jsx';
+import ShowCard from './Components/ShowCard.jsx';
 import SearchResults from './SearchResults.jsx';
 import { createHashRouter, RouterProvider } from "react-router-dom";
 
@@ -32,6 +33,10 @@ const router = createHashRouter([
       {
         path: "People",
         element: <People></People>,
+      },
+      {
+        path: "ShowCard",
+        element: <ShowCard></ShowCard>,
       },
     ],
   },

@@ -1,31 +1,90 @@
 import MovieCard from "./Components/MovieCard";
 import { useState, useEffect } from "react";
-import { LoaderCircle } from "lucide-react";
-import { ArrowLeft } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { LoaderCircle, ArrowLeft, Plus, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function Movies() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
   const apikey = import.meta.env.VITE_TMDB_API_KEY;
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchTrendingMovies();
+    fetchTrendingMovies(1, true);
   }, []);
 
-  async function fetchTrendingMovies() {
+  // Handle scroll to show/hide scroll-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      setShowScrollToTop(scrollTop > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  async function fetchTrendingMovies(page = 1, isInitialLoad = false) {
+    if (isInitialLoad) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
     try {
       const response = await fetch(
-        `https://api.themoviedb.org/3/trending/movie/day?api_key=${apikey}`
+        `https://api.themoviedb.org/3/trending/movie/day?api_key=${apikey}&page=${page}`
       );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
-      setMovies(data.results || data);
+      
+      if (isInitialLoad) {
+        // First load - for replacing
+        setMovies(data.results || []);
+        setTotalPages(data.total_pages || 0);
+        setCurrentPage(1);
+        setHasMore(data.total_pages > 1);
+      } else {
+        // Load more 
+        setMovies(prevMovies => {
+          const newMovies = data.results || [];
+          // Avoiding repititions
+          const uniqueNewMovies = newMovies.filter(
+            newMovie => !prevMovies.some(existingMovie => existingMovie.id === newMovie.id)
+          );
+          return [...prevMovies, ...uniqueNewMovies];
+        });
+        setCurrentPage(page);
+        setHasMore(page < (data.total_pages || 0));
+      }
+      
       setLoading(false);
+      setLoadingMore(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
+      if (isInitialLoad) {
+        setMovies([]);
+      }
       setLoading(false);
+      setLoadingMore(false);
+      setHasMore(false);
+    }
+  }
+
+  // Load more movies
+  function loadMoreMovies() {
+    if (!loadingMore && hasMore) {
+      const nextPage = currentPage + 1;
+      fetchTrendingMovies(nextPage, false);
     }
   }
 
@@ -33,6 +92,19 @@ function Movies() {
   function goBackToLanding() {
     navigate("/");
   }
+
+  // Scroll to top function
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+
+  // Filter movies 
+  const displayMovies = movies
+    .filter((movie) => movie.vote_count > 0)
+    .filter((movie) => movie.poster_path || movie.backdrop_path);
 
   return (
     <div className="min-h-screen bg-amber-100">
@@ -44,6 +116,17 @@ function Movies() {
         <span className="hidden sm:inline">Back to Home</span>
         <span className="sm:hidden">Home</span>
       </button>
+
+      {/* Scroll to Top Button */}
+      {showScrollToTop && (
+        <div
+          onClick={scrollToTop}
+          className="fixed bottom-2 right-3 bg-black text-white rounded-full shadow-lg p-3 hover:bg-violet-600 transition-all duration-300 transform hover:scale-105 z-50"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="h-5 w-5" />
+        </div>
+      )}
 
       {loading ? (
         <div className="h-screen justify-center items-center flex flex-col sm:flex-row text-2xl sm:text-3xl lg:text-4xl w-full bg-amber-100 opacity-50 px-4 gap-4">
@@ -63,7 +146,7 @@ function Movies() {
             </p>
           </div>
 
-          {movies.length === 0 ? (
+          {displayMovies.length === 0 ? (
             <div className="text-center p-6 sm:p-8">
               <p className="text-lg sm:text-xl text-gray-600 mb-4">
                 No trending movies available at the moment.
@@ -77,26 +160,57 @@ function Movies() {
             </div>
           ) : (
             <div className="pb-8 sm:pb-12">
-              <div className="mb-6 sm:mb-8">
+              {/* Results count */}
+              <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-center items-center gap-2">
                 <p className="text-sm sm:text-base text-gray-600 text-center">
-                  {movies.filter((movie) => movie.vote_count > 0).length}{" "}
-                  trending movies
+                  Showing {displayMovies.length} trending movies
                 </p>
+                
               </div>
 
-              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8">
-                {movies
-                  .filter((movie) => movie.vote_count > 0)
-                  .filter((movie) => movie.poster_path || movie.backdrop_path)
-                  .map((movie) => (
-                    <div
-                      key={movie.id}
-                      className="flex-shrink-0 w-full max-w-sm sm:w-auto"
-                    >
-                      <MovieCard movie={movie} />
-                    </div>
-                  ))}
+              {/* Movies Section */}
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8 mb-8">
+                {displayMovies.map((movie) => (
+                  <div
+                    key={movie.id}
+                    className="flex-shrink-0 w-full max-w-sm sm:w-auto"
+                  >
+                    <MovieCard movie={movie} />
+                  </div>
+                ))}
               </div>
+
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="flex justify-center mt-8 mb-4">
+                  <button
+                    onClick={loadMoreMovies}
+                    disabled={loadingMore}
+                    className="flex items-center gap-2 bg-violet-500 text-white px-6 py-3 rounded-lg hover:bg-violet-600 disabled:bg-violet-300 disabled:cursor-not-allowed transition-colors text-sm sm:text-base font-medium shadow-md hover:shadow-lg"
+                  >
+                    {loadingMore ? (
+                      <>
+                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                        <span>Loading More...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4" />
+                        <span>Load More Movies</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* End of results */}
+              {!hasMore && displayMovies.length > 20 && (
+                <div className="text-center mt-8 mb-4">
+                  <p className="text-sm sm:text-base text-gray-500">
+                    You've reached the end of trending movies
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
