@@ -1,135 +1,62 @@
 import { useState, useEffect } from "react";
-import { LoaderCircle, ArrowLeft, ChevronUp, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { LoaderCircle, ChevronUp, Plus } from "lucide-react";
 import ShowCard from "./Components/ShowCard";
+import { useAppContext } from "./AppContext"; // Update the import path
 
 function TVshows() {
-  const [TVshows, setTVshows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
-  const [showScrollToTop, setShowScrollToTop] = useState(false);
-  const apikey = import.meta.env.VITE_TMDB_API_KEY;
-  const navigate = useNavigate();
+  const { 
+    tvShowsData, 
+    fetchTrendingTVshows, 
+    loadMoreTVshows, 
+    getFilteredTVShows 
+  } = useAppContext();
 
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+
+  // Initialize data on component mount
   useEffect(() => {
-    fetchTrendingTVshows(1, true);
-  }, []);
+    if (!tvShowsData.initialized) {
+      fetchTrendingTVshows(1, true);
+    }
+  }, [tvShowsData.initialized]);
 
   // Handle scroll to show/hide scroll-to-top button
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
       setShowScrollToTop(scrollTop > 300);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  async function fetchTrendingTVshows(page = 1, isInitialLoad = false) {
-    if (isInitialLoad) {
-      setLoading(true);
-    } else {
-      setLoadingMore(true);
-    }
-
-    try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/trending/tv/day?api_key=${apikey}&page=${page}`
-      );
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (isInitialLoad) {
-        // First load for replacing 
-        setTVshows(data.results || []);
-        setTotalPages(data.total_pages || 0);
-        setCurrentPage(1);
-        setHasMore(data.total_pages > 1);
-      } else {
-        // Load more
-        setTVshows(prevShows => {
-          const newShows = data.results || [];
-          // Remove any duplicates
-          const uniqueNewShows = newShows.filter(
-            newShow => !prevShows.some(existingShow => existingShow.id === newShow.id)
-          );
-          return [...prevShows, ...uniqueNewShows];
-        });
-        setCurrentPage(page);
-        setHasMore(page < (data.total_pages || 0));
-      }
-      
-      setLoading(false);
-      setLoadingMore(false);
-    } catch (error) {
-      console.error("Error fetching TV-shows:", error);
-      if (isInitialLoad) {
-        setTVshows([]);
-      }
-      setLoading(false);
-      setLoadingMore(false);
-      setHasMore(false);
-    }
-  }
-
-  // Load more TV shows
-  function loadMoreTVshows() {
-    if (!loadingMore && hasMore) {
-      const nextPage = currentPage + 1;
-      fetchTrendingTVshows(nextPage, false);
-    }
-  }
-
-  // Go back to landing page
-  function goBackToLanding() {
-    navigate("/");
-  }
 
   // Scroll to top function
   function scrollToTop() {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   }
 
-  // Filter TV shows 
-  const displayTVshows = TVshows
-    .filter((show) => show.vote_count > 0)
-    .filter((show) => show.poster_path || show.backdrop_path);
+  // Get filtered TV shows from context
+  const displayTVshows = getFilteredTVShows();
 
   return (
-    <div className="min-h-screen bg-amber-100">
-      {/* back to home */}
-      <button
-        onClick={goBackToLanding}
-        className="fixed top-25 left-3 z-50 flex items-center gap-2 bg-gray-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base shadow-lg"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span className="hidden sm:inline">Back to Home</span>
-        <span className="sm:hidden">Home</span>
-      </button>
-
+    <div className="min-h-screen bg-amber-100 relative">
       {/* Scroll to Top Button */}
       {showScrollToTop && (
-        <button
+        <div
           onClick={scrollToTop}
           className="fixed bottom-5 right-5 bg-black text-white p-3 rounded-full shadow-lg hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50"
           aria-label="Scroll to top"
         >
           <ChevronUp className="h-5 w-5" />
-        </button>
+        </div>
       )}
 
-      {loading ? (
+      {tvShowsData.loading ? (
         <div className="h-screen justify-center items-center flex flex-col sm:flex-row text-2xl sm:text-3xl lg:text-4xl w-full bg-amber-100 opacity-50 px-4 gap-4">
           <div className="text-center">Loading TV-Shows....</div>
           <div className="flex justify-center items-center animate-spin">
@@ -139,7 +66,7 @@ function TVshows() {
       ) : (
         <div className="movie container w-screen px-4 sm:px-6 lg:px-8">
           <div className="py-6 sm:py-8 lg:py-6">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl flex justify-center items-center  font-bold text-violet-600">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl py-2 flex justify-center items-center font-bold text-violet-600">
               Trending TV-Shows
             </h1>
             <p className="text-sm sm:text-base text-gray-600 text-center">
@@ -147,16 +74,16 @@ function TVshows() {
             </p>
           </div>
 
-          {displayTVshows.length === 0 ? (
+          {displayTVshows.length === 0 && tvShowsData.initialized ? (
             <div className="text-center p-6 sm:p-8">
               <p className="text-lg sm:text-xl text-gray-600 mb-4">
                 No trending TV-Shows available at the moment.
               </p>
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => fetchTrendingTVshows(1, true)}
                 className="bg-blue-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-600 transition-colors text-sm sm:text-base"
               >
-                Refresh Page
+                Refresh TV Shows
               </button>
             </div>
           ) : (
@@ -168,7 +95,7 @@ function TVshows() {
                 </p>
               </div>
 
-              {/* TV Shows */}
+              {/* TV Shows Grid */}
               <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8 mb-8">
                 {displayTVshows.map((show) => (
                   <div
@@ -181,14 +108,14 @@ function TVshows() {
               </div>
 
               {/* Load More Button */}
-              {hasMore && (
+              {tvShowsData.hasMore && (
                 <div className="flex justify-center mt-8 mb-4">
                   <button
                     onClick={loadMoreTVshows}
-                    disabled={loadingMore}
+                    disabled={tvShowsData.loadingMore}
                     className="flex items-center gap-2 bg-violet-500 text-white px-6 py-3 rounded-lg hover:bg-violet-600 disabled:bg-violet-300 disabled:cursor-not-allowed transition-colors text-sm sm:text-base font-medium shadow-md hover:shadow-lg"
                   >
-                    {loadingMore ? (
+                    {tvShowsData.loadingMore ? (
                       <>
                         <LoaderCircle className="h-4 w-4 animate-spin" />
                         <span>Loading More...</span>
@@ -204,11 +131,21 @@ function TVshows() {
               )}
 
               {/* End of results */}
-              {!hasMore && displayTVshows.length > 20 && (
+              {!tvShowsData.hasMore && displayTVshows.length > 20 && (
                 <div className="text-center mt-8 mb-4">
                   <p className="text-sm sm:text-base text-gray-500">
                     You've reached the end of trending TV shows
                   </p>
+                </div>
+              )}
+
+              {/* Loading more indicator */}
+              {tvShowsData.loadingMore && (
+                <div className="flex justify-center mt-4">
+                  <div className="flex items-center gap-2 text-violet-600">
+                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Loading more TV shows...</span>
+                  </div>
                 </div>
               )}
             </div>

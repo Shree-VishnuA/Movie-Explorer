@@ -52,16 +52,25 @@ function Navbar({ onSearch, UserSearch, setUserSearch }) {
   }
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between sm:justify-between items-center border-b-[1px] py-2 px-4 sm:px-6 lg:px-8 gap-4 sm:gap-2 bg-amber-100">
+    <div className="flex flex-col sm:flex-row justify-between sm:justify-between items-center border-b-[1px] py-1 px-4 sm:px-6 lg:px-8 gap-4 sm:gap-2 bg-amber-100 fixed z-100 w-screen">
       {/* Logo  */}
       <div className="flex gap-10 justify-center items-center">
         <div className="flex-shrink-0">
           <Logo />
         </div>
+        <NavLink to={"/"}>
+          {({isActive}) => (
+            <div
+              className={` p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90 ${isActive?"text-stone-800" :""}`}
+            >
+              Home
+            </div>
+          )}
+        </NavLink>
         <NavLink to={"Movies"}>
           {({isActive}) => (
             <div
-              className={`border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90 ${isActive?"bg-violet-500 text-white" :""}`}
+              className={`p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90 ${isActive?"text-stone-800" :""}`}
             >
               Movies
             </div>
@@ -70,7 +79,7 @@ function Navbar({ onSearch, UserSearch, setUserSearch }) {
         <NavLink to={"TVshows"}>
           {({isActive}) => (
             <div
-              className={`border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90  ${isActive?"bg-violet-500 text-white" :""}`}
+              className={`p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90 ${isActive?"text-stone-800" :""}`}
             >
               TV Shows
             </div>
@@ -79,7 +88,7 @@ function Navbar({ onSearch, UserSearch, setUserSearch }) {
         <NavLink to={"People"}>
           {({isActive}) => (
             <div
-              className={`border p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90  ${isActive?"bg-violet-500 text-white" :""}`}
+              className={`p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90 ${isActive?"text-stone-800 " :""}`}
             >
              People
             </div>

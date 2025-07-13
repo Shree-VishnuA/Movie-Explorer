@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import { AppProvider } from "./AppContext";
 
 function Layout() {
   const [UserSearch, setUserSearch] = useState("");
@@ -19,10 +20,12 @@ function Layout() {
         UserSearch={UserSearch}
         setUserSearch={setUserSearch}
       />
-      
+
       {/* Main Content Area */}
-      <main className="flex-1 w-full">
-        <Outlet />
+      <main className="flex-1 w-full mt-20">
+        <AppProvider>
+          <Outlet />
+        </AppProvider>
       </main>
 
       {/* Optional Footer Space */}

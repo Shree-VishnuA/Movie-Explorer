@@ -1,32 +1,50 @@
+import React, { useState, useEffect } from "react";
+import { ChevronUp, ChevronDown, LoaderCircle, Plus } from "lucide-react";
 import MovieCard from "./Components/MovieCard";
-import { useState, useEffect } from "react";
-import { LoaderCircle, ArrowLeft, Plus, ChevronUp } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useAppContext } from "./AppContext";
 
-function Movies() {
-  const [movies, setMovies] = useState([]);
+const Movies = () => {
+  const {
+    apiKey,
+    moviesData,
+    updateMoviesData,
+    resetMoviesData
+  } = useAppContext();
+
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
-  const apikey = import.meta.env.VITE_TMDB_API_KEY;
-  const navigate = useNavigate();
+  const [showScrollToDown, setShowScrollToDown] = useState(false);
+
+  // Get data from context
+  const { movies, currentPage, totalPages, hasMore } = moviesData;
 
   useEffect(() => {
-    fetchTrendingMovies(1, true);
+    // Only fetch if we don't have movies data
+    if (movies.length === 0) {
+      fetchTrendingMovies(1, true);
+    } else {
+      setLoading(false);
+    }
   }, []);
 
-  // Handle scroll to show/hide scroll-to-top button
+  // Handle scroll to show/hide scroll buttons
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      
+      // Show scroll to top button after scrolling down 300px
       setShowScrollToTop(scrollTop > 300);
+      
+      // Show scroll to bottom button when not at the bottom and there's content below
+      const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
+      setShowScrollToDown(scrollTop >= 0&& !isNearBottom);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   async function fetchTrendingMovies(page = 1, isInitialLoad = false) {
@@ -38,45 +56,47 @@ function Movies() {
 
     try {
       const response = await fetch(
-        `https://api.themoviedb.org/3/trending/movie/day?api_key=${apikey}&page=${page}`
+        `https://api.themoviedb.org/3/trending/movie/day?api_key=${apiKey}&page=${page}`
       );
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (isInitialLoad) {
-        // First load - for replacing
-        setMovies(data.results || []);
-        setTotalPages(data.total_pages || 0);
-        setCurrentPage(1);
-        setHasMore(data.total_pages > 1);
-      } else {
-        // Load more 
-        setMovies(prevMovies => {
-          const newMovies = data.results || [];
-          // Avoiding repititions
-          const uniqueNewMovies = newMovies.filter(
-            newMovie => !prevMovies.some(existingMovie => existingMovie.id === newMovie.id)
-          );
-          return [...prevMovies, ...uniqueNewMovies];
+        // First load - replace data
+        updateMoviesData({
+          movies: data.results || [],
+          currentPage: 1,
+          totalPages: data.total_pages || 0,
+          hasMore: data.total_pages > 1
         });
-        setCurrentPage(page);
-        setHasMore(page < (data.total_pages || 0));
+      } else {
+        // Load more - append data
+        const newMovies = data.results || [];
+        const uniqueNewMovies = newMovies.filter(
+          (newMovie) =>
+            !movies.some((existingMovie) => existingMovie.id === newMovie.id)
+        );
+        
+        updateMoviesData({
+          movies: [...movies, ...uniqueNewMovies],
+          currentPage: page,
+          hasMore: page < (data.total_pages || 0)
+        });
       }
-      
+
       setLoading(false);
       setLoadingMore(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
       if (isInitialLoad) {
-        setMovies([]);
+        resetMoviesData();
       }
       setLoading(false);
       setLoadingMore(false);
-      setHasMore(false);
     }
   }
 
@@ -88,43 +108,48 @@ function Movies() {
     }
   }
 
-  // Go back to landing page
-  function goBackToLanding() {
-    navigate("/");
-  }
-
   // Scroll to top function
   function scrollToTop() {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   }
 
-  // Filter movies 
-  const displayMovies = movies
-    .filter((movie) => movie.vote_count > 0)
-    .filter((movie) => movie.poster_path || movie.backdrop_path);
+  // Scroll to bottom function
+  function scrollToBottom() {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
+  }
+
+  // Filter movies
+  const displayMovies = movies.filter((movie) => movie.vote_count > 0).filter(
+    (movie) => movie.poster_path || movie.backdrop_path
+  );
 
   return (
-    <div className="min-h-screen bg-amber-100">
-      <button
-        onClick={goBackToLanding}
-        className="flex items-center gap-2 bg-gray-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base order-2 sm:order-1 self-start fixed top-25 left-3 z-50 "
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span className="hidden sm:inline">Back to Home</span>
-        <span className="sm:hidden">Home</span>
-      </button>
-
+    <div className="min-h-screen bg-amber-100 relative">
       {/* Scroll to Top Button */}
       {showScrollToTop && (
         <div
           onClick={scrollToTop}
-          className="fixed bottom-2 right-3 bg-black text-white rounded-full shadow-lg p-3 hover:bg-violet-600 transition-all duration-300 transform hover:scale-105 z-50"
+          className="fixed bottom-5 right-5 bg-black text-white p-3 rounded-full shadow-lg hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
           aria-label="Scroll to top"
         >
           <ChevronUp className="h-5 w-5" />
+        </div>
+      )}
+
+      {/* Scroll to Bottom Button */}
+      {showScrollToDown && (
+        <div
+          onClick={scrollToBottom}
+          className="fixed top-25 right-5  bg-black text-white p-3 rounded-full shadow-lg hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-500 cursor-pointer"
+          aria-label="Scroll to bottom"
+        >
+          <ChevronDown className="h-5 w-5" />
         </div>
       )}
 
@@ -138,7 +163,7 @@ function Movies() {
       ) : (
         <div className="movie container w-screen px-4 sm:px-6 lg:px-8">
           <div className="py-6 sm:py-8 lg:py-6">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl flex justify-center items-center py-2 font-bold text-violet-600">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl py-2 flex justify-center items-center font-bold text-violet-600">
               Trending Movies
             </h1>
             <p className="text-sm sm:text-base text-gray-600 text-center">
@@ -152,10 +177,10 @@ function Movies() {
                 No trending movies available at the moment.
               </p>
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => fetchTrendingMovies(1, true)}
                 className="bg-blue-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-600 transition-colors text-sm sm:text-base"
               >
-                Refresh Page
+                Refresh Movies
               </button>
             </div>
           ) : (
@@ -163,12 +188,11 @@ function Movies() {
               {/* Results count */}
               <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-center items-center gap-2">
                 <p className="text-sm sm:text-base text-gray-600 text-center">
-                  Showing {displayMovies.length} trending movies
+                  Showing {displayMovies.length} trending movies 
                 </p>
-                
               </div>
 
-              {/* Movies Section */}
+              {/* Movies */}
               <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8 mb-8">
                 {displayMovies.map((movie) => (
                   <div
@@ -217,6 +241,6 @@ function Movies() {
       )}
     </div>
   );
-}
+};
 
 export default Movies;
