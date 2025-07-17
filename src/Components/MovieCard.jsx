@@ -1,5 +1,3 @@
-;
-
 function MovieCard({ movie = {} }) {
   const getGenreNames = (genreIds) => {
     const genreMap = {
@@ -135,56 +133,58 @@ function MovieCard({ movie = {} }) {
     movie?.release_date && new Date(movie.release_date) > new Date();
 
   return (
-    <div className="w-80 max-w-sm mx-auto h-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-101 relative sm:max-w-md md:max-w-lg lg:max-w-sm xl:max-w-md">
-      {/* Backdrop Image  */}
-      <div className="relative">
+    <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-xs xl:max-w-sm 2xl:max-w-md mx-auto h-full bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] relative group">
+      {/* Backdrop Image Container - Enhanced responsive sizing */}
+      <div className="relative overflow-hidden">
         <img
           src={`https://image.tmdb.org/t/p/w500${
             movie?.poster_path || movie?.backdrop_path || ""
           }`}
           alt={movie?.title || "Movie poster"}
-          className="w-full h-48 sm:h-56 md:h-64 lg:h-56 xl:h-64 object-contain"
+          className="w-full h-40 xs:h-44 sm:h-48 md:h-56 lg:h-44 xl:h-52 2xl:h-60 object-contain transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
         />
 
-        {/* Background with gradient */}
+        {/* Background with gradient - Enhanced for better text readability */}
         {hasBackdrop && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         )}
 
-        {/* Rating Badge */}
+        {/* Rating Badge - Enhanced responsive design */}
         {movie?.vote_average > 0 && (
-          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/80 text-white px-2 py-1 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1">
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/90 backdrop-blur-sm text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1 shadow-lg">
             <span className="text-yellow-400">⭐</span>
-            {movie.vote_average.toFixed(1)}
+            <span className="font-mono">{movie.vote_average.toFixed(1)}</span>
           </div>
         )}
 
-        {/* New Release Badge  */}
+        {/* New Release Badge - Enhanced styling */}
         {isNewRelease && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-gradient-to-r from-red-500 to-red-600 text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse">
             NEW
           </div>
         )}
 
-        {/* Popularity  */}
-        <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-white/90 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
-          🔥 {formatPopularity(movie?.popularity || 0)}
+        {/* Popularity Badge - Enhanced responsive design */}
+        <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-white/95 backdrop-blur-sm text-gray-800 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-lg">
+          <span className="text-orange-500">🔥</span> {formatPopularity(movie?.popularity || 0)}
         </div>
       </div>
       
-      <div className="p-3 sm:p-4 md:p-5">
-        {/* Title */}
-        <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 line-clamp-2 leading-tight">
+      {/* Content Container - Enhanced responsive padding */}
+      <div className="p-3 sm:p-4 md:p-5 lg:p-4 xl:p-5 space-y-3 sm:space-y-4">
+        {/* Title - Enhanced responsive typography */}
+        <h3 className="text-base sm:text-lg md:text-xl lg:text-lg xl:text-xl font-bold text-gray-800 line-clamp-2 leading-tight hover:text-blue-600 transition-colors duration-200">
           {movie?.title || "Unknown Title"}
         </h3>
 
-        {/* Genres */}
+        {/* Genres - Enhanced responsive layout */}
         {genres.length > 0 && (
-          <div className="flex flex-wrap gap-1 sm:gap-2 mb-3">
+          <div className="flex flex-wrap gap-1 sm:gap-2">
             {genres.map((genre, index) => (
               <span
                 key={index}
-                className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
+                className="px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 text-xs sm:text-sm rounded-full font-medium border border-blue-200 hover:bg-blue-200 transition-colors duration-200"
               >
                 {genre}
               </span>
@@ -192,41 +192,42 @@ function MovieCard({ movie = {} }) {
           </div>
         )}
 
-        {/* Overview */}
-        <p className="text-xs sm:text-sm text-gray-600 mb-4 line-clamp-3 leading-relaxed">
+        {/* Overview - Enhanced responsive text */}
+        <p className="text-xs sm:text-sm md:text-base lg:text-sm xl:text-base text-gray-600 line-clamp-3 leading-relaxed">
           {movie?.overview || "No description available."}
         </p>
 
-        {/* Stats Row */}
-        <div className="mb-3 flex justify-between">
+        {/* Stats Row - Enhanced responsive layout */}
+        <div className="flex flex-col xs:flex-row xs:justify-between xs:items-center gap-2 xs:gap-1">
+          {/* Vote Count */}
           {movie?.vote_count > 0 && (
-            <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500 mb-2">
+            <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500">
               <span className="text-blue-500">👥</span>
-              <span>{movie.vote_count.toLocaleString()} votes</span>
+              <span className="font-medium">{movie.vote_count.toLocaleString()} votes</span>
             </div>
           )}
           
-          {/* Language Badge */}
+          {/* Language Badge - Enhanced responsive design */}
           {movie?.original_language && movie.original_language !== "en" && (
-            <div className="mb-2">
-              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
-                <span className="hidden sm:inline">Original Language: </span>
+            <div className="flex-shrink-0">
+              <span className="px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-green-50 to-green-100 text-green-700 text-xs sm:text-sm rounded-full font-medium border border-green-200 hover:bg-green-200 transition-colors duration-200">
+                <span className="hidden sm:inline">Lang: </span>
                 {getLanguageName(movie.original_language)}
               </span>
             </div>
           )}
         </div>
 
-        {/* Release Date and Media Type */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-          <div className="text-xs sm:text-sm font-medium text-gray-700">
-            <span className="hidden sm:inline">Release Date: </span>
-            <span className="sm:hidden">📅 </span>
-            {formatDate(movie?.release_date)}
+        {/* Release Date and Media Type - Enhanced responsive layout */}
+        <div className="flex flex-col xs:flex-row xs:justify-between xs:items-center gap-2 pt-2 border-t border-gray-100">
+          <div className="text-xs sm:text-sm font-medium text-gray-700 flex items-center gap-1">
+            <span className="text-gray-500">📅</span>
+            <span className="hidden sm:inline">Release: </span>
+            <span className="font-semibold">{formatDate(movie?.release_date)}</span>
           </div>
 
-          {/* Media Type Badge */}
-          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full font-medium capitalize self-start sm:self-auto">
+          {/* Media Type Badge - Enhanced styling */}
+          <span className="px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-600 text-xs sm:text-sm rounded-full font-medium capitalize border border-gray-200 hover:bg-gray-200 transition-colors duration-200 self-start xs:self-auto">
             {movie?.media_type || "Movie"}
           </span>
         </div>
