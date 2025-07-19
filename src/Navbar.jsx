@@ -3,7 +3,7 @@ import { Search, Menu, X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
-function Navbar({ onSearch, UserSearch, setUserSearch }) {
+function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
   const [RecentSearches, setRecentSearches] = useState([]);
   const [isSearchFocused, setisSearchFocused] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -86,8 +86,8 @@ function Navbar({ onSearch, UserSearch, setUserSearch }) {
               <NavLink key={item.to} to={item.to}>
                 {({isActive}) => (
                   <div
-                    className={`p-2 rounded-lg hover:cursor-pointer hover:scale-102 hover:opacity-90 transition-all duration-200 text-sm lg:text-base ${
-                      isActive ? "text-stone-800 font-semibold" : "text-gray-700"
+                    className={`p-2 hover:cursor-pointer hover:scale-102 hover:opacity-90 transition-all duration-200 text-sm lg:text-base ${
+                      isActive ? "text-stone-800 font-semibold border-b-2" : "text-gray-700 "
                     }`}
                   >
                     {item.label}
@@ -100,14 +100,14 @@ function Navbar({ onSearch, UserSearch, setUserSearch }) {
 
         {/* Search bar */}
         <div
-          className="flex flex-col relative w-64 lg:w-80 max-w-md"
+          className="flex flex-col relative w-64 lg:w-90 max-w-md "
           ref={searchContainerRef}
         >
           <div className="flex border border-gray-300 p-2 sm:p-3 rounded-full gap-2 justify-center items-center w-full bg-white">
             <div className="flex-1">
               <input
                 type="text"
-                placeholder="Search Movies and TV-Shows"
+                placeholder="Search Movies,TV-Shows and People"
                 className="focus:outline-none w-full text-sm sm:text-base px-2 bg-transparent"
                 value={UserSearch}
                 onChange={(e) => setUserSearch(e.target.value)}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
 // Create the context
 const AppContext = createContext();
@@ -7,7 +7,7 @@ const AppContext = createContext();
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useAppContext must be used within an AppProvider');
+    throw new Error("useAppContext must be used within an AppProvider");
   }
   return context;
 };
@@ -19,7 +19,7 @@ export const AppProvider = ({ children }) => {
     movies: [],
     currentPage: 1,
     totalPages: 0,
-    hasMore: false
+    hasMore: false,
   });
 
   // TV Shows state
@@ -30,26 +30,28 @@ export const AppProvider = ({ children }) => {
     hasMore: false,
     loading: false,
     loadingMore: false,
-    initialized: false // Track if data has been loaded initially
+    initialized: false, // Track if data has been loaded initially
   });
 
   // Loading states
   const [globalLoading, setGlobalLoading] = useState({
     movies: false,
-    tvShows: false
+    tvShows: false,
   });
+
+  const [userSearch, setUserSearch] = useState("");
 
   // API Key
   const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
   // Update movies data
   const updateMoviesData = (newData) => {
-    setMoviesData(prev => ({ ...prev, ...newData }));
+    setMoviesData((prev) => ({ ...prev, ...newData }));
   };
 
   // Update TV shows data
   const updateTvShowsData = (newData) => {
-    setTvShowsData(prev => ({ ...prev, ...newData }));
+    setTvShowsData((prev) => ({ ...prev, ...newData }));
   };
 
   // Reset movies data
@@ -58,7 +60,7 @@ export const AppProvider = ({ children }) => {
       movies: [],
       currentPage: 1,
       totalPages: 0,
-      hasMore: false
+      hasMore: false,
     });
   };
 
@@ -71,16 +73,16 @@ export const AppProvider = ({ children }) => {
       hasMore: false,
       loading: false,
       loadingMore: false,
-      initialized: false
+      initialized: false,
     });
   };
 
   // Fetch trending TV shows
   const fetchTrendingTVshows = async (page = 1, isInitialLoad = false) => {
     if (isInitialLoad) {
-      setTvShowsData(prev => ({ ...prev, loading: true }));
+      setTvShowsData((prev) => ({ ...prev, loading: true }));
     } else {
-      setTvShowsData(prev => ({ ...prev, loadingMore: true }));
+      setTvShowsData((prev) => ({ ...prev, loadingMore: true }));
     }
 
     try {
@@ -96,7 +98,7 @@ export const AppProvider = ({ children }) => {
 
       if (isInitialLoad) {
         // First load - replace existing data
-        setTvShowsData(prev => ({
+        setTvShowsData((prev) => ({
           ...prev,
           tvShows: data.results || [],
           totalPages: data.total_pages || 0,
@@ -104,46 +106,48 @@ export const AppProvider = ({ children }) => {
           hasMore: data.total_pages > 1,
           loading: false,
           loadingMore: false,
-          initialized: true
+          initialized: true,
         }));
       } else {
         // Load more - append to existing data
-        setTvShowsData(prev => {
+        setTvShowsData((prev) => {
           const newShows = data.results || [];
           // Remove any duplicates
           const uniqueNewShows = newShows.filter(
             (newShow) =>
-              !prev.tvShows.some((existingShow) => existingShow.id === newShow.id)
+              !prev.tvShows.some(
+                (existingShow) => existingShow.id === newShow.id
+              )
           );
-          
+
           return {
             ...prev,
             tvShows: [...prev.tvShows, ...uniqueNewShows],
             currentPage: page,
             hasMore: page < (data.total_pages || 0),
             loading: false,
-            loadingMore: false
+            loadingMore: false,
           };
         });
       }
     } catch (error) {
       console.error("Error fetching TV-shows:", error);
-      
+
       if (isInitialLoad) {
-        setTvShowsData(prev => ({
+        setTvShowsData((prev) => ({
           ...prev,
           tvShows: [],
           loading: false,
           loadingMore: false,
           hasMore: false,
-          initialized: true
+          initialized: true,
         }));
       } else {
-        setTvShowsData(prev => ({
+        setTvShowsData((prev) => ({
           ...prev,
           loading: false,
           loadingMore: false,
-          hasMore: false
+          hasMore: false,
         }));
       }
     }
@@ -159,14 +163,14 @@ export const AppProvider = ({ children }) => {
 
   // Set global loading state
   const setGlobalLoadingState = (type, loading) => {
-    setGlobalLoading(prev => ({ ...prev, [type]: loading }));
+    setGlobalLoading((prev) => ({ ...prev, [type]: loading }));
   };
 
   // Filter TV shows (same logic as in your component)
   const getFilteredTVShows = () => {
-    return tvShowsData.tvShows.filter((show) => show.vote_count > 0).filter(
-      (show) => show.poster_path || show.backdrop_path
-    );
+    return tvShowsData.tvShows
+      .filter((show) => show.vote_count > 0)
+      .filter((show) => show.poster_path || show.backdrop_path);
   };
 
   const contextValue = {
@@ -174,7 +178,7 @@ export const AppProvider = ({ children }) => {
     moviesData,
     updateMoviesData,
     resetMoviesData,
-    
+
     // TV Shows
     tvShowsData,
     updateTvShowsData,
@@ -182,18 +186,19 @@ export const AppProvider = ({ children }) => {
     fetchTrendingTVshows,
     loadMoreTVshows,
     getFilteredTVShows,
-    
+
     // Global loading
     globalLoading,
     setGlobalLoadingState,
-    
+
     // API Key
-    apiKey
+    apiKey,
+
+    userSearch,
+    setUserSearch,
   };
 
   return (
-    <AppContext.Provider value={contextValue}>
-      {children}
-    </AppContext.Provider>
+    <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
   );
 };

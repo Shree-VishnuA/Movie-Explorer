@@ -147,7 +147,7 @@ function ShowCard({ show = {} }) {
     show?.first_air_date && new Date(show.first_air_date) > new Date();
 
   return (
-    <div className="w-80 max-w-sm mx-auto h-full bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-101 relative sm:max-w-md md:max-w-lg lg:max-w-sm xl:max-w-md">
+    <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-xs xl:max-w-sm 2xl:max-w-md mx-auto bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] relative group">
       {/* Backdrop Image  */}
       <div className="relative">
         <img

@@ -319,22 +319,22 @@ const Movies = () => {
 
   return (
     <div className="min-h-screen bg-amber-100 relative">
-      {/* Scroll to Top Button - Responsive positioning */}
+            {/* Scroll to Top Button */}
       {showScrollToTop && (
         <div
           onClick={scrollToTop}
-          className="fixed bottom-2 right-2 sm:bottom-3 sm:right-3 bg-black text-white p-2 sm:p-3 rounded-full shadow-lg hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
+          className="fixed bottom-2 right-2 sm:bottom-2 sm:right-2 bg-black text-white p-2 sm:p-3 rounded-full shadow-lg hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
           aria-label="Scroll to top"
         >
           <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
       )}
 
-      {/* Scroll to Bottom Button - Responsive positioning */}
+         {/* Scroll to Bottom Button - Responsive positioning */}
       {showScrollToDown && (
         <div
           onClick={scrollToBottom}
-          className="fixed top-20 sm:top-22 right-2 sm:right-3 bg-black text-white p-2 sm:p-3 rounded-full shadow-lg hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
+          className="fixed top-18 sm:top-20 right-2 sm:right-3 bg-black text-white p-2 sm:p-3 rounded-full shadow-lg hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
           aria-label="Scroll to bottom"
         >
           <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -378,7 +378,8 @@ const Movies = () => {
               </div>
 
               {/* Personalizer Toggle - Responsive button */}
-              <div className="mb-4 sm:mb-6 flex justify-center sm:justify-start">
+             <div className="flex justify-center">
+               <div className="mb-4 sm:mb-6 flex justify-center sm:justify-start">
                 <button
                   onClick={showFilters}
                   className={`cursor-pointer px-4 py-2 sm:px-6 sm:py-3 rounded-lg text-white font-semibold flex items-center gap-2 transition-all duration-200 text-sm sm:text-base ${
@@ -391,6 +392,7 @@ const Movies = () => {
                   {isPersonalizerSelected ? "Hide Filters" : "Show Filters"}
                 </button>
               </div>
+             </div>
 
               {/* Filter Section - Responsive modal-like design */}
               {isPersonalizerSelected && (
@@ -548,11 +550,11 @@ const Movies = () => {
               )}
 
               {/* Movies Grid - Responsive layout */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6  px-1 sm:px-2 md:px-0">
                 {displayMovies.map((movie) => (
                   <div
                     key={movie.id}
-                    className="flex justify-center"
+                    className="flex justify-center w-full"
                   >
                     <MovieCard movie={movie} />
                   </div>

@@ -20,7 +20,7 @@ const router = createHashRouter([
         element: <Landing />,
       },
       {
-        path:"/search/:query",
+        path:"search/:query",
         element:<SearchResults />,
       },
       {

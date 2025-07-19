@@ -1,7 +1,7 @@
 import Person from "./Components/Person";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LoaderCircle, Plus, ChevronUp } from "lucide-react";
+import { LoaderCircle, Plus, ChevronUp, ChevronDown } from "lucide-react";
 
 function People() {
   const api_key = import.meta.env.VITE_TMDB_API_KEY;
@@ -12,6 +12,7 @@ function People() {
   const [totalPages, setTotalPages] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const [showScrollToDown, setShowScrollToDown] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,11 +21,18 @@ function People() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollTop =
+        window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+
       setShowScrollToTop(scrollTop > 300);
+      const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
+      setShowScrollToDown(scrollTop >= 0 && !isNearBottom);
     };
 
     window.addEventListener("scroll", handleScroll);
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -37,7 +45,8 @@ function People() {
         `https://api.themoviedb.org/3/trending/person/day?language=en-US&api_key=${api_key}&page=${page}`
       );
 
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
 
       const data = await response.json();
 
@@ -49,7 +58,8 @@ function People() {
       } else {
         const newPeople = data.results || [];
         const uniqueNewPeople = newPeople.filter(
-          (newPerson) => !people.some((existing) => existing.id === newPerson.id)
+          (newPerson) =>
+            !people.some((existing) => existing.id === newPerson.id)
         );
         setPeople((prev) => [...prev, ...uniqueNewPeople]);
         setCurrentPage(page);
@@ -75,98 +85,105 @@ function People() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const displayPeople = people.filter((p) => p.popularity > 0 && p.profile_path);
+  function scrollToBottom() {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
+  }
+
+  const displayPeople = people.filter(
+    (p) => p.popularity > 0 && p.profile_path && !p.adult && !p.gender == 0
+  );
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 relative">
-      {/* Scroll to Top Button */}
+    <div className="min-h-screen bg-amber-100 text-gray-800 relative">
+      {/* Scroll Buttons */}
       {showScrollToTop && (
-        <button
+        <div
           onClick={scrollToTop}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-black text-white p-2 sm:p-3 rounded-full shadow-lg hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
-          aria-label="Scroll to top"
+          className="fixed bottom-4 right-4 bg-violet-700 text-white p-3 rounded-full shadow-md hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
         >
-          <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
-        </button>
+          <ChevronUp className="h-5 w-5" />
+        </div>
+      )}
+      {showScrollToDown && (
+        <div
+          onClick={scrollToBottom}
+          className="fixed top-20 right-4 bg-violet-700 text-white p-3 rounded-full shadow-md hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
+        >
+          <ChevronDown className="h-5 w-5" />
+        </div>
       )}
 
       {loading ? (
-        <div className="h-screen flex justify-center items-center flex-col bg-amber-100 opacity-70 px-4">
-          <div className="mb-4 text-center text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-medium">
-            Loading People...
-          </div>
-          <LoaderCircle className="animate-spin w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 text-violet-500" />
+        <div className="h-screen flex flex-col justify-center items-center bg-amber-100 opacity-80">
+          <p className="mb-4 text-lg sm:text-2xl font-semibold text-violet-700">
+            Loading Trending People...
+          </p>
+          <LoaderCircle className="animate-spin h-10 w-10 text-violet-600" />
         </div>
       ) : (
-        <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
-          {/* Header Section */}
-          <div className="py-6 sm:py-8 md:py-10">
-            <h1 className="text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-violet-700 mb-2 sm:mb-3 md:mb-4">
+        <div className="w-full px-4 max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="py-8">
+            <h1 className="text-center text-3xl sm:text-5xl font-bold text-violet-800">
               Trending People
             </h1>
-            <p className="text-center text-xs sm:text-sm md:text-base lg:text-lg text-gray-600 px-4 sm:px-6 md:px-8">
-              Discover the most popular people in entertainment right now
-            </p>
           </div>
 
           {displayPeople.length === 0 ? (
-            <div className="text-center py-8 sm:py-12 md:py-16 px-4">
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 mb-4 sm:mb-6">
+            <div className="text-center py-16">
+              <p className="text-lg text-gray-600">
                 No trending people available at the moment.
               </p>
               <button
                 onClick={() => window.location.reload()}
-                className="bg-blue-600 text-white px-4 sm:px-5 md:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 text-sm sm:text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="mt-4 bg-violet-600 text-white px-6 py-3 rounded-lg hover:bg-violet-700 transition-all duration-300"
               >
                 Refresh Page
               </button>
             </div>
           ) : (
-            <div className="pb-12 sm:pb-16 md:pb-20">
-              {/* Results Counter */}
-              <div className="text-center mb-4 sm:mb-6 md:mb-8 text-gray-600 text-xs sm:text-sm md:text-base">
+            <div className="pb-16">
+              <p className="text-center text-gray-600 text-sm mb-6">
                 Showing {displayPeople.length} trending people
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {displayPeople
+                  .filter((person) => person.popularity > 2)
+                  .map((person) => (
+                    <Person key={person.id} person={person} />
+                  ))}
               </div>
 
-              {/* People Grid - Enhanced Responsive Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-                {displayPeople.map((person) => (
-                  <div key={person.id} className="w-full">
-                    <Person person={person} />
-                  </div>
-                ))}
-              </div>
-
-              {/* Load More Button */}
               {hasMore && (
-                <div className="flex justify-center mt-8 sm:mt-10 md:mt-12 px-4">
+                <div className="flex justify-center mt-10">
                   <button
                     onClick={loadMorePeople}
                     disabled={loadingMore}
-                    className="flex items-center gap-2 bg-violet-500 text-white px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 rounded-lg hover:bg-violet-600 disabled:bg-violet-300 disabled:cursor-not-allowed transition-all duration-300 text-xs sm:text-sm md:text-base lg:text-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
+                    className="flex items-center gap-2 bg-violet-600 text-white px-6 py-3 rounded-lg hover:bg-violet-700 disabled:bg-violet-400 disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg"
                   >
                     {loadingMore ? (
                       <>
-                        <LoaderCircle className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 animate-spin" />
-                        <span className="hidden xs:inline">Loading More...</span>
-                        <span className="xs:hidden">Loading...</span>
+                        <LoaderCircle className="h-5 w-5 animate-spin" />
+                        Loading...
                       </>
                     ) : (
                       <>
-                        <Plus className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
-                        <span className="hidden xs:inline">Load More People</span>
-                        <span className="xs:hidden">Load More</span>
+                        <Plus className="h-5 w-5" />
+                        Load More
                       </>
                     )}
                   </button>
                 </div>
               )}
 
-              {/* End Message */}
               {!hasMore && displayPeople.length > 20 && (
-                <div className="text-center mt-6 sm:mt-8 md:mt-10 text-xs sm:text-sm md:text-base text-gray-500 px-4">
-                  You've reached the end of trending people
-                </div>
+                <p className="text-center mt-6 text-gray-500 text-sm">
+                  You’ve reached the end of trending people.
+                </p>
               )}
             </div>
           )}
