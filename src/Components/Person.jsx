@@ -53,8 +53,8 @@ function Person({ person = {} }) {
   <div
     onClick={() => navigate(`/person/${person.id}`)}
     className="cursor-pointer w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto
-               bg-black/30 backdrop-blur-md border border-white/30 rounded-xl shadow-lg
-               hover:shadow-[0_0_20px_#FFD700] transition-all duration-300 hover:scale-[1.03]
+               bg-black/30 backdrop-blur-md border border-white/30 rounded-xl shadow
+               hover:shadow-[0_0_15px_#FFD700] transition-all duration-300 
                flex flex-col h-full overflow-hidden group"
   >
     {/* Profile Image */}
@@ -66,7 +66,7 @@ function Person({ person = {} }) {
             : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23111111'/%3E%3Cpath d='M200 180c-33.137 0-60-26.863-60-60s26.863-60 60-60 60 26.863 60 60-26.863 60-60 60zm0-100c-22.091 0-40 17.909-40 40s17.909 40 40 40 40-17.909 40-40-17.909-40-40-40zM300 360H100c-11.046 0-20-8.954-20-20 0-77.32 62.68-140 140-140h60c77.32 0 140 62.68 140 140 0 11.046-8.954 20-20 20z' fill='%23333333'/%3E%3C/svg%3E"
         }
         alt={person?.name || "Person photo"}
-        className="w-full h-48 sm:h-64 md:h-72 object-contain transition-transform duration-300 group-hover:scale-105"
+        className="w-full h-48 sm:h-64 md:h-72 object-contain transition-transform duration-300 group-hover:scale-102"
         loading="lazy"
       />
 

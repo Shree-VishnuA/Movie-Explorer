@@ -107,7 +107,7 @@ function TVshows() {
     {showScrollToTop && (
       <div
         onClick={scrollToTop}
-        className="fixed bottom-2 right-2 sm:bottom-4 sm:right-4 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-md hover:bg-[#f67c02] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
+        className="fixed bottom-2 right-2 sm:bottom-2 sm:right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-md hover:bg-[#f67c02] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
       >
         <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
       </div>
@@ -115,7 +115,7 @@ function TVshows() {
     {showScrollToDown && (
       <div
         onClick={scrollToBottom}
-        className="fixed top-20 sm:top-24 right-2 sm:right-4 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-md hover:bg-[#f67c02] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
+        className="fixed top-18 sm:top-18 right-2 sm:right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-md hover:bg-[#f67c02] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
       >
         <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
       </div>
@@ -152,7 +152,7 @@ function TVshows() {
             className={`cursor-pointer px-5 py-3 rounded-lg font-semibold flex items-center gap-2 text-[clamp(0.85rem,1.5vw,1.1rem)] transition-all duration-200 ${
               isPersonalizerSelected
                 ? "bg-[#333] hover:bg-[#444] text-white"
-                : "bg-[#f67c02] hover:bg-[#B20710] text-white"
+                : "bg-[#f67c02] text-white"
             }`}
           >
             <Filter className="h-4 w-4" />

@@ -148,14 +148,14 @@ function ShowCard({ show = {} }) {
 
  return (
   <div
-    className="w-full max-w-xs mx-auto bg-black/40 backdrop-blur-md border border-white/30 rounded-xl shadow-lg hover:shadow-[0_0_20px_#00FFFF] transition-all duration-300 hover:scale-[1.03] cursor-pointer overflow-hidden group"
+    className="w-full max-w-xs mx-auto bg-black/40 backdrop-blur-md border border-white/30 rounded-xl shadow-lg hover:shadow-[0_0_15px_#00FFFF] transition-all duration-300  cursor-pointer overflow-hidden group"
   >
     {/* Poster / Backdrop */}
     <div className="relative">
       <img
         src={`https://image.tmdb.org/t/p/w500${show?.poster_path || show?.backdrop_path || ""}`}
         alt={show?.name || "TV Show poster"}
-        className="w-full h-56 object-contain transition-transform duration-300 group-hover:scale-105"
+        className="w-full h-56 object-contain transition-transform duration-300 group-hover:scale-102"
         loading="lazy"
       />
 
