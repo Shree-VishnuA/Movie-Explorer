@@ -257,7 +257,7 @@ const Movies = () => {
           <h1 className="text-center font-bold text-[#f67c02] text-3xl my-6">Trending Movies</h1>
 
           {/* Filters Toggle */}
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-6 hover:cursor-pointer">
             <div onClick={toggleFilters} className={`px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all ${isPersonalizerSelected ? "bg-[#333]" : "bg-[#f67c02]"}`}>
               <Filter size={18} /> {isPersonalizerSelected ? "Hide Filters" : "Show Filters"}
             </div>
@@ -345,7 +345,7 @@ const Movies = () => {
           {/* Load More */}
           {hasMore && (
             <div className="flex justify-center mt-8">
-              <div onClick={loadMoreMovies} disabled={loadingMore} className="bg-[#00FFFF] text-black px-6 py-3 rounded-lg hover:bg-[#FFC107] flex items-center gap-2">
+              <div onClick={loadMoreMovies} disabled={loadingMore} className="bg-[#00FFFF] text-black px-6 py-3 rounded-lg hover:bg-[#FFC107] flex items-center gap-2 hover:cursor-pointer mb-4">
                 {loadingMore ? <LoaderCircle className="animate-spin" size={20} /> : <Plus size={18} />}
                 {loadingMore ? "Loading..." : "Load More"}
               </div>
