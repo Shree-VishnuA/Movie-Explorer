@@ -1,28 +1,44 @@
 import Navbar from "./Navbar";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAppContext } from "./AppContext";
 
 function LandingPage() {
   const [UserSearch, setUserSearch] = useState("");
   const navigate = useNavigate();
 
   function handleSearch(searchQuery) {
+    if (!searchQuery.trim()) return;
     navigate(`/search/${encodeURIComponent(searchQuery)}`);
   }
 
   return (
-    <div className="min-h-screen bg-amber-100 flex flex-col">
-      {/* Optional Navbar (kept for future use) */}
-      <Navbar />
+    <div className="min-h-screen bg-[#0D0D0F] text-white flex flex-col">
+      {/* Navbar */}
+      <Navbar
+        onSearch={handleSearch}
+        UserSearch={UserSearch}
+        setUserSearch={setUserSearch}
+      />
 
       {/* Main Container */}
-      <div className="flex-1 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div className="flex-1 w-full px-4 sm:px-6 lg:px-8 xl:px-12 max-w-[1400px] mx-auto">
         {/* Heading Section */}
-        <div className="py-10 sm:py-12 lg:py-16 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-violet-600 mb-4">
+        <div className="py-8 sm:py-12 lg:py-16 text-center">
+          <h1
+            className="font-extrabold text-[#f67c02] mb-4 leading-tight"
+            style={{
+              fontSize: "clamp(1.875rem, 4vw, 4rem)", // Smooth scaling from ~30px to ~64px
+            }}
+          >
             Coming Soon
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed max-w-3xl mx-auto px-2">
+          <p
+            className="text-[#B3B3B3] leading-relaxed max-w-4xl mx-auto px-2"
+            style={{
+              fontSize: "clamp(0.875rem, 2vw, 1.5rem)", // Smooth scaling from ~14px to ~24px
+            }}
+          >
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Illo
             quisquam, amet neque aliquam minus inventore tenetur doloremque
             earum saepe. Aperiam necessitatibus impedit harum ut, deserunt
@@ -33,24 +49,30 @@ function LandingPage() {
         </div>
 
         {/* Subheading */}
-        <div className="pb-10 sm:pb-12 text-center">
-          <p className="text-sm sm:text-base md:text-lg text-gray-600">
+        <div className="pb-8 sm:pb-12 text-center">
+          <p
+            className="text-[#FFD700]"
+            style={{
+              fontSize: "clamp(0.75rem, 1.5vw, 1.125rem)", // Smooth scaling
+            }}
+          >
             Stay tuned for upcoming movies and shows!
           </p>
         </div>
 
-        {/* Placeholder for Future Content */}
-        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8 pb-12">
-          {/* Movie Cards will be added here later */}
-          <div className="w-40 h-56 sm:w-48 sm:h-64 bg-gray-300 rounded-lg shadow-md flex items-center justify-center text-gray-500 text-sm sm:text-base">
-            Placeholder 1
-          </div>
-          <div className="w-40 h-56 sm:w-48 sm:h-64 bg-gray-300 rounded-lg shadow-md flex items-center justify-center text-gray-500 text-sm sm:text-base">
-            Placeholder 2
-          </div>
-          <div className="w-40 h-56 sm:w-48 sm:h-64 bg-gray-300 rounded-lg shadow-md flex items-center justify-center text-gray-500 text-sm sm:text-base">
-            Placeholder 3
-          </div>
+        {/* Responsive Placeholder Grid */}
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 pb-12 justify-items-center">
+          {[1, 2, 3, 4, 5].map((item) => (
+            <div
+              key={item}
+              className="w-full max-w-[160px] sm:max-w-[180px] md:max-w-[200px] lg:max-w-[220px] aspect-[2/3] bg-[#1A1A1F] rounded-lg shadow-md flex items-center justify-center text-[#B3B3B3] hover:scale-105 transition-transform"
+              style={{
+                fontSize: "clamp(0.75rem, 1.5vw, 1rem)", // Smooth text scaling
+              }}
+            >
+              Placeholder {item}
+            </div>
+          ))}
         </div>
       </div>
     </div>

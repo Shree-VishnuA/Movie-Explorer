@@ -12,7 +12,6 @@ export const useAppContext = () => {
   return context;
 };
 
-// Context Provider Component
 export const AppProvider = ({ children }) => {
   // Movies state
   const [moviesData, setMoviesData] = useState({
@@ -21,6 +20,8 @@ export const AppProvider = ({ children }) => {
     totalPages: 0,
     hasMore: false,
   });
+
+  const [RecentSearches, setRecentSearches] = useState([]);
 
   // TV Shows state
   const [tvShowsData, setTvShowsData] = useState({
@@ -33,48 +34,21 @@ export const AppProvider = ({ children }) => {
     initialized: false, // Track if data has been loaded initially
   });
 
-  // Loading states
-  const [globalLoading, setGlobalLoading] = useState({
-    movies: false,
-    tvShows: false,
+  // TV Shows filters (persistent across pages)
+  const [tvShowFilters, setTVShowFilters] = useState({
+    genre: "",
+    year: "",
+    rating: "",
+    country: "",
+    sortBy: "popularity.desc",
   });
-
-  const [userSearch, setUserSearch] = useState("");
 
   // API Key
   const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
-  // Update movies data
-  const updateMoviesData = (newData) => {
-    setMoviesData((prev) => ({ ...prev, ...newData }));
-  };
-
   // Update TV shows data
   const updateTvShowsData = (newData) => {
     setTvShowsData((prev) => ({ ...prev, ...newData }));
-  };
-
-  // Reset movies data
-  const resetMoviesData = () => {
-    setMoviesData({
-      movies: [],
-      currentPage: 1,
-      totalPages: 0,
-      hasMore: false,
-    });
-  };
-
-  // Reset TV shows data
-  const resetTvShowsData = () => {
-    setTvShowsData({
-      tvShows: [],
-      currentPage: 1,
-      totalPages: 0,
-      hasMore: false,
-      loading: false,
-      loadingMore: false,
-      initialized: false,
-    });
   };
 
   // Fetch trending TV shows
@@ -97,7 +71,6 @@ export const AppProvider = ({ children }) => {
       const data = await response.json();
 
       if (isInitialLoad) {
-        // First load - replace existing data
         setTvShowsData((prev) => ({
           ...prev,
           tvShows: data.results || [],
@@ -109,17 +82,14 @@ export const AppProvider = ({ children }) => {
           initialized: true,
         }));
       } else {
-        // Load more - append to existing data
         setTvShowsData((prev) => {
           const newShows = data.results || [];
-          // Remove any duplicates
           const uniqueNewShows = newShows.filter(
             (newShow) =>
               !prev.tvShows.some(
                 (existingShow) => existingShow.id === newShow.id
               )
           );
-
           return {
             ...prev,
             tvShows: [...prev.tvShows, ...uniqueNewShows],
@@ -132,24 +102,14 @@ export const AppProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Error fetching TV-shows:", error);
-
-      if (isInitialLoad) {
-        setTvShowsData((prev) => ({
-          ...prev,
-          tvShows: [],
-          loading: false,
-          loadingMore: false,
-          hasMore: false,
-          initialized: true,
-        }));
-      } else {
-        setTvShowsData((prev) => ({
-          ...prev,
-          loading: false,
-          loadingMore: false,
-          hasMore: false,
-        }));
-      }
+      setTvShowsData((prev) => ({
+        ...prev,
+        tvShows: [],
+        loading: false,
+        loadingMore: false,
+        hasMore: false,
+        initialized: true,
+      }));
     }
   };
 
@@ -161,41 +121,119 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Set global loading state
-  const setGlobalLoadingState = (type, loading) => {
-    setGlobalLoading((prev) => ({ ...prev, [type]: loading }));
+  // Apply and Reset Filters
+  const applyTVShowFilters = (newFilters) => {
+    setTVShowFilters(newFilters);
   };
 
-  // Filter TV shows (same logic as in your component)
+  const resetTVShowFilters = () => {
+    setTVShowFilters({
+      genre: "",
+      year: "",
+      rating: "",
+      country: "",
+      sortBy: "popularity.desc",
+    });
+  };
+
+  // Update Movies data (like your TV shows version)
+const updateMoviesData = (newData) => {
+  setMoviesData((prev) => ({
+    ...prev,
+    ...newData, // Merge new data into existing state
+  }));
+};
+
+ 
+  function resetMoviesData() {
+  setMoviesData({
+    movies: [],
+    currentPage: 1,
+    totalPages: 0,
+    hasMore: true,
+  });
+
+  // Auto-fetch trending movies after clearing
+  fetch(`https://api.themoviedb.org/3/trending/movie/day?api_key=${apiKey}&page=1`)
+    .then((res) => res.json())
+    .then((data) => {
+      setMoviesData({
+        movies: data.results || [],
+        currentPage: 1,
+        totalPages: data.total_pages || 0,
+        hasMore: data.total_pages > 1,
+      });
+    })
+    .catch(() => {
+      setMoviesData({
+        movies: [],
+        currentPage: 1,
+        totalPages: 0,
+        hasMore: false,
+      });
+    });
+}
+
+  // Get Filtered TV Shows
   const getFilteredTVShows = () => {
     return tvShowsData.tvShows
       .filter((show) => show.vote_count > 0)
-      .filter((show) => show.poster_path || show.backdrop_path);
+      .filter((show) => show.poster_path || show.backdrop_path)
+      .filter((show) =>
+        tvShowFilters.genre ? show.genre_ids.includes(Number(tvShowFilters.genre)) : true
+      )
+      .filter((show) =>
+        tvShowFilters.country ? show.origin_country?.includes(tvShowFilters.country) : true
+      )
+      .filter((show) =>
+        tvShowFilters.year ? show.first_air_date?.startsWith(tvShowFilters.year) : true
+      )
+      .sort((a, b) => {
+        switch (tvShowFilters.sortBy) {
+          case "popularity.asc":
+            return a.popularity - b.popularity;
+          case "popularity.desc":
+            return b.popularity - a.popularity;
+          case "first_air_date.asc":
+            return new Date(a.first_air_date) - new Date(b.first_air_date);
+          case "first_air_date.desc":
+            return new Date(b.first_air_date) - new Date(a.first_air_date);
+          case "vote_average.asc":
+            return a.vote_average - b.vote_average;
+          case "vote_average.desc":
+            return b.vote_average - a.vote_average;
+          case "name.asc":
+            return a.name.localeCompare(b.name);
+          case "name.desc":
+            return b.name.localeCompare(a.name);
+          default:
+            return 0;
+        }
+      });
   };
 
   const contextValue = {
     // Movies
     moviesData,
+    setMoviesData,
+    resetMoviesData ,
     updateMoviesData,
-    resetMoviesData,
 
     // TV Shows
     tvShowsData,
-    updateTvShowsData,
-    resetTvShowsData,
     fetchTrendingTVshows,
     loadMoreTVshows,
     getFilteredTVShows,
+    tvShowFilters,
+    applyTVShowFilters,
+    resetTVShowFilters,
+    updateTvShowsData,
 
-    // Global loading
-    globalLoading,
-    setGlobalLoadingState,
-
-    // API Key
     apiKey,
 
-    userSearch,
-    setUserSearch,
+    RecentSearches,
+  setRecentSearches,
+
   };
 
   return (

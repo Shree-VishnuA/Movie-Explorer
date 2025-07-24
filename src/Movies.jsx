@@ -22,12 +22,13 @@ const Movies = () => {
   const [showScrollToDown, setShowScrollToDown] = useState(false);
   const [isPersonalizerSelected, setisPersonalizerSelected] = useState(false);
 
-  // Filter states
   const [filters, setFilters] = useState({
     genre: "",
     year: "",
     rating: "",
     sortBy: "popularity.desc",
+    language: "", // e.g., 'en', 'hi'
+    region: "", // e.g., 'US', 'IN'
   });
 
   // Get data from context
@@ -40,9 +41,9 @@ const Movies = () => {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, []); // Added empty dependency array to prevent infinite calls
 
-  // Handle scroll to show/hide scroll buttons
+  // Handle scroll to show/hide scroll divs
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop =
@@ -50,10 +51,10 @@ const Movies = () => {
       const scrollHeight = document.documentElement.scrollHeight;
       const clientHeight = document.documentElement.clientHeight;
 
-      // Show scroll to top button after scrolling down 300px
+      // Show scroll to top div after scrolling down 300px
       setShowScrollToTop(scrollTop > 300);
 
-      // Show scroll to bottom button when not at the bottom and there's content below
+      // Show scroll to bottom div when not at the bottom and there's content below
       const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
       setShowScrollToDown(scrollTop >= 0 && !isNearBottom);
     };
@@ -115,14 +116,6 @@ const Movies = () => {
     }
   }
 
-  // Load more movies
-  function loadMoreMovies() {
-    if (!loadingMore && hasMore) {
-      const nextPage = currentPage + 1;
-      fetchTrendingMovies(nextPage, false);
-    }
-  }
-
   // Scroll to top function
   function scrollToTop() {
     window.scrollTo({
@@ -140,7 +133,7 @@ const Movies = () => {
   }
 
   // Show/Hide filters function
-  function showFilters() {
+  function toggleFilters() {
     setisPersonalizerSelected((prev) => !prev);
   }
 
@@ -152,32 +145,33 @@ const Movies = () => {
     }));
   }
 
-  //  applying filters function
+  // Applying filters function
   async function applyFilters() {
     setLoading(true);
 
     try {
-      // Build the base URL
       let url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&page=1`;
 
-      // Add filters to URL if they exist
       if (filters.genre) {
         url += `&with_genres=${filters.genre}`;
       }
-
       if (filters.year) {
         url += `&primary_release_year=${filters.year}`;
       }
-
       if (filters.rating) {
         url += `&vote_average.gte=${filters.rating}`;
       }
-
       if (filters.sortBy) {
         url += `&sort_by=${filters.sortBy}`;
       }
+      if (filters.language) {
+        url += `&with_original_language=${filters.language}`;
+      }
+      if (filters.region) {
+        url += `&region=${filters.region}`;
+      }
 
-      console.log("Filter URL:", url); // For debugging
+      console.log("Filter URL:", url);
 
       const response = await fetch(url);
 
@@ -187,7 +181,6 @@ const Movies = () => {
 
       const data = await response.json();
 
-      // Update movies data with filtered results
       updateMoviesData({
         movies: data.results || [],
         currentPage: 1,
@@ -196,14 +189,14 @@ const Movies = () => {
       });
 
       setLoading(false);
-      setisPersonalizerSelected(false); // Close filter panel
+      setisPersonalizerSelected(false);
     } catch (error) {
       console.error("Error applying filters:", error);
       setLoading(false);
     }
   }
 
-  // loadmore movies function in applied filters
+  // Load more movies function with filters support
   async function loadMoreMovies() {
     if (!loadingMore && hasMore) {
       setLoadingMore(true);
@@ -237,6 +230,12 @@ const Movies = () => {
 
           if (filters.sortBy) {
             url += `&sort_by=${filters.sortBy}`;
+          }
+          if (filters.language) {
+            url += `&with_original_language=${filters.language}`;
+          }
+          if (filters.region) {
+            url += `&region=${filters.region}`;
           }
         } else {
           // Use trending API which is normal
@@ -272,7 +271,7 @@ const Movies = () => {
     }
   }
 
-  // Reset filters function - UPDATED
+  // Reset filters function
   async function resetFilters() {
     // Reset filter state
     setFilters({
@@ -318,23 +317,23 @@ const Movies = () => {
     .filter((movie) => movie.poster_path || movie.backdrop_path);
 
   return (
-    <div className="min-h-screen bg-amber-100 relative">
-            {/* Scroll to Top Button */}
+    <div className="min-h-screen bg-[#0D0D0F] relative text-white">
+      {/* Scroll to Top div */}
       {showScrollToTop && (
         <div
           onClick={scrollToTop}
-          className="fixed bottom-2 right-2 sm:bottom-2 sm:right-2 bg-black text-white p-2 sm:p-3 rounded-full shadow-lg hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
+          className="fixed bottom-2 right-2 sm:bottom-4 sm:right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-lg hover:bg-[#f67c02] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:ring-offset-2"
           aria-label="Scroll to top"
         >
           <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
         </div>
       )}
 
-         {/* Scroll to Bottom Button - Responsive positioning */}
+      {/* Scroll to Bottom div */}
       {showScrollToDown && (
         <div
           onClick={scrollToBottom}
-          className="fixed top-18 sm:top-20 right-2 sm:right-3 bg-black text-white p-2 sm:p-3 rounded-full shadow-lg hover:bg-violet-600 transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer"
+          className="fixed top-18 right-2 sm:top-18 sm:right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-lg hover:bg-[#f67c02] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:ring-offset-2"
           aria-label="Scroll to bottom"
         >
           <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -342,232 +341,178 @@ const Movies = () => {
       )}
 
       {loading ? (
-        <div className="h-screen justify-center items-center flex flex-col text-xl sm:text-2xl md:text-3xl lg:text-4xl w-full bg-amber-100 opacity-50 px-4 gap-4">
-          <div className="text-center">Loading Movies....</div>
-          <div className="flex justify-center items-center animate-spin">
-            <LoaderCircle className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12"></LoaderCircle>
+        <div className="h-screen flex flex-col justify-center items-center gap-4 px-4 bg-[#0D0D0F] opacity-80 text-[#00FFFF] text-center">
+          <div
+            style={{
+              fontSize: "clamp(1.25rem, 3vw, 2.5rem)", // Scales 20px to 40px
+            }}
+          >
+            Loading Movies...
           </div>
+          <LoaderCircle className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 animate-spin text-[#f67c02]" />
         </div>
       ) : (
-        <div className="movie-container w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="movie-container w-full max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          {/* Heading */}
           <div className="py-4 sm:py-6 md:py-8">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl py-2 flex justify-center items-center font-bold text-violet-600 text-center">
+            <h1
+              className="flex justify-center items-center text-center font-bold text-[#f67c02] drop-shadow-[0_0_8px_#f67c02]"
+              style={{
+                fontSize: "clamp(1.5rem, 4vw, 3rem)", // 24px to 48px
+              }}
+            >
               Trending Movies
             </h1>
           </div>
 
+          {/* No Movies Case */}
           {displayMovies.length === 0 ? (
             <div className="text-center p-4 sm:p-6 md:p-8">
-              <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-4">
+              <p
+                className="mb-4 text-[#B3B3B3]"
+                style={{
+                  fontSize: "clamp(0.875rem, 2vw, 1.25rem)", // 14px–20px
+                }}
+              >
                 No trending movies available at the moment.
               </p>
-              <button
+              <div
                 onClick={() => fetchTrendingMovies(1, true)}
-                className="bg-blue-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-600 transition-colors text-sm sm:text-base font-medium"
+                className="bg-[#00FFFF] text-black px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-[#FFC107] transition-colors font-medium"
+                style={{
+                  fontSize: "clamp(0.75rem, 1.5vw, 1rem)", // 12px–16px
+                }}
               >
                 Refresh Movies
-              </button>
+              </div>
             </div>
           ) : (
             <div className="pb-6 sm:pb-8 md:pb-12">
-              {/* Results count - Responsive text */}
-              <div className="mb-4 sm:mb-6 md:mb-8 flex justify-center items-center">
-                <p className="text-sm sm:text-base md:text-lg text-gray-600 text-center">
+              {/* Results count */}
+              <div className="mb-4 sm:mb-6 flex justify-center">
+                <p
+                  className="text-[#B3B3B3] text-center"
+                  style={{
+                    fontSize: "clamp(0.75rem, 1.5vw, 1.125rem)", // 12px–18px
+                  }}
+                >
                   Showing {displayMovies.length} trending movies
                 </p>
               </div>
 
-              {/* Personalizer Toggle - Responsive button */}
-             <div className="flex justify-center">
-               <div className="mb-4 sm:mb-6 flex justify-center sm:justify-start">
-                <button
-                  onClick={showFilters}
-                  className={`cursor-pointer px-4 py-2 sm:px-6 sm:py-3 rounded-lg text-white font-semibold flex items-center gap-2 transition-all duration-200 text-sm sm:text-base ${
-                    isPersonalizerSelected 
-                      ? "bg-gray-500 hover:bg-gray-600" 
-                      : "bg-violet-600 hover:bg-violet-700"
-                  }`}
+              {/* Filters Toggle */}
+              <div className="flex justify-center mb-4 sm:mb-6">
+                <div
+                  onClick={toggleFilters}
+                  className={`px-4 py-2 sm:px-6 sm:py-3 hover:cursor-pointer rounded-lg font-semibold flex items-center gap-2 transition-all duration-200`}
+                  style={{
+                    fontSize: "clamp(0.75rem, 1.5vw, 1rem)", // 12px–16px
+                    backgroundColor: isPersonalizerSelected
+                      ? "#333"
+                      : "#f67c02",
+                  }}
                 >
                   <Filter className="h-4 w-4" />
                   {isPersonalizerSelected ? "Hide Filters" : "Show Filters"}
-                </button>
+                </div>
               </div>
-             </div>
 
-              {/* Filter Section - Responsive modal-like design */}
+              {/* Filters Section */}
               {isPersonalizerSelected && (
-                <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200 mx-auto max-w-6xl">
+                <div className="bg-[#1A1A1F] rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6 border border-[#333] mx-auto max-w-6xl">
                   <div className="flex items-center justify-between mb-4 sm:mb-6">
-                    <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
+                    <h3
+                      className="text-white font-semibold"
+                      style={{
+                        fontSize: "clamp(1rem, 2vw, 1.5rem)", // 16px–24px
+                      }}
+                    >
                       Filter Movies
                     </h3>
-                    <button
-                      onClick={showFilters}
-                      className="text-gray-400 hover:text-gray-600 p-1 transition-colors"
+                    <div
+                      onClick={toggleFilters}
+                      className="text-[#B3B3B3] hover:text-white p-1"
                     >
                       <X className="h-5 w-5 sm:h-6 sm:w-6" />
-                    </button>
-                  </div>
-
-                  {/* Filter Grid - Responsive columns */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
-                    {/* Genre Filter */}
-                    <div className="space-y-2">
-                      <label className="block text-sm sm:text-base font-medium text-gray-700">
-                        Genre
-                      </label>
-                      <select
-                        value={filters.genre}
-                        onChange={(e) =>
-                          handleFilterChange("genre", e.target.value)
-                        }
-                        className="w-full p-2 sm:p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm sm:text-base"
-                      >
-                        <option value="">All Genres</option>
-                        <option value="28">Action</option>
-                        <option value="12">Adventure</option>
-                        <option value="16">Animation</option>
-                        <option value="35">Comedy</option>
-                        <option value="80">Crime</option>
-                        <option value="99">Documentary</option>
-                        <option value="18">Drama</option>
-                        <option value="10751">Family</option>
-                        <option value="14">Fantasy</option>
-                        <option value="36">History</option>
-                        <option value="27">Horror</option>
-                        <option value="10402">Music</option>
-                        <option value="9648">Mystery</option>
-                        <option value="10749">Romance</option>
-                        <option value="878">Science Fiction</option>
-                        <option value="10770">TV Movie</option>
-                        <option value="53">Thriller</option>
-                        <option value="10752">War</option>
-                        <option value="37">Western</option>
-                      </select>
-                    </div>
-
-                    {/* Year Filter */}
-                    <div className="space-y-2">
-                      <label className="block text-sm sm:text-base font-medium text-gray-700">
-                        Release Year
-                      </label>
-                      <select
-                        value={filters.year}
-                        onChange={(e) =>
-                          handleFilterChange("year", e.target.value)
-                        }
-                        className="w-full p-2 sm:p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm sm:text-base"
-                      >
-                        <option value="">All Years</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
-                        <option value="2021">2021</option>
-                        <option value="2020">2020</option>
-                        <option value="2019">2019</option>
-                        <option value="2018">2018</option>
-                        <option value="2017">2017</option>
-                        <option value="2016">2016</option>
-                        <option value="2015">2015</option>
-                      </select>
-                    </div>
-
-                    {/* Rating Filter */}
-                    <div className="space-y-2">
-                      <label className="block text-sm sm:text-base font-medium text-gray-700">
-                        Minimum Rating
-                      </label>
-                      <select
-                        value={filters.rating}
-                        onChange={(e) =>
-                          handleFilterChange("rating", e.target.value)
-                        }
-                        className="w-full p-2 sm:p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm sm:text-base"
-                      >
-                        <option value="">Any Rating</option>
-                        <option value="8">8.0+ Excellent</option>
-                        <option value="7">7.0+ Very Good</option>
-                        <option value="6">6.0+ Good</option>
-                        <option value="5">5.0+ Average</option>
-                        <option value="4">4.0+ Below Average</option>
-                      </select>
-                    </div>
-
-                    {/* Sort By Filter */}
-                    <div className="space-y-2">
-                      <label className="block text-sm sm:text-base font-medium text-gray-700">
-                        Sort By
-                      </label>
-                      <select
-                        value={filters.sortBy}
-                        onChange={(e) =>
-                          handleFilterChange("sortBy", e.target.value)
-                        }
-                        className="w-full p-2 sm:p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm sm:text-base"
-                      >
-                        <option value="popularity.desc">
-                          Popularity (High to Low)
-                        </option>
-                        <option value="popularity.asc">
-                          Popularity (Low to High)
-                        </option>
-                        <option value="release_date.desc">
-                          Release Date (Newest)
-                        </option>
-                        <option value="release_date.asc">
-                          Release Date (Oldest)
-                        </option>
-                        <option value="vote_average.desc">
-                          Rating (High to Low)
-                        </option>
-                        <option value="vote_average.asc">
-                          Rating (Low to High)
-                        </option>
-                        <option value="title.asc">Title (A to Z)</option>
-                        <option value="title.desc">Title (Z to A)</option>
-                      </select>
                     </div>
                   </div>
 
-                  {/* Filter Action Buttons - Responsive layout */}
+                  {/* Filters Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-6">
+                    {[
+                      "Genre",
+                      "Release Year",
+                      "Minimum Rating",
+                      "Sort By",
+                      "Language",
+                      "Region",
+                    ].map((label, idx) => (
+                      <div className="space-y-2" key={idx}>
+                        <label
+                          className="block text-[#00FFFF] font-medium"
+                          style={{
+                            fontSize: "clamp(0.75rem, 1.5vw, 1rem)",
+                          }}
+                        >
+                          {label}
+                        </label>
+                        <select
+                          className="w-full p-2 sm:p-3 border border-[#333] rounded-md bg-[#0D0D0F] text-white focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
+                          style={{
+                            fontSize: "clamp(0.75rem, 1.5vw, 1rem)",
+                          }}
+                        >
+                          <option value="">Select {label}</option>
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Filters divs */}
                   <div className="flex flex-col sm:flex-row gap-3 justify-center sm:justify-start">
-                    <button
+                    <div
                       onClick={applyFilters}
-                      className="bg-violet-600 text-white px-6 py-2 sm:py-3 rounded-md hover:bg-violet-700 transition-colors font-medium text-sm sm:text-base flex items-center justify-center gap-2"
+                      className="bg-[#333] text-white px-6 py-3 rounded-md hover:bg-[#444] transition-colors flex items-center justify-center gap-2 font-medium hover:cursor-pointer"
+                      style={{
+                        fontSize: "clamp(0.75rem, 1.5vw, 1rem)",
+                      }}
                     >
                       <Search className="h-4 w-4" />
                       Apply Filters
-                    </button>
-                    <button
+                    </div>
+                    <div
                       onClick={resetFilters}
-                      className="bg-gray-500 text-white px-6 py-2 sm:py-3 rounded-md hover:bg-gray-600 transition-colors font-medium text-sm sm:text-base flex items-center justify-center gap-2"
+                      className="bg-[#333] text-white px-6 py-3 rounded-md hover:bg-[#444] transition-colors flex items-center justify-center gap-2 font-medium hover:cursor-pointer"
+                      style={{
+                        fontSize: "clamp(0.75rem, 1.5vw, 1rem)",
+                      }}
                     >
                       <RotateCcw className="h-4 w-4" />
                       Reset Filters
-                    </button>
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Movies Grid - Responsive layout */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6  px-1 sm:px-2 md:px-0">
+              {/* Movies Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 px-1 sm:px-2 md:px-0">
                 {displayMovies.map((movie) => (
-                  <div
-                    key={movie.id}
-                    className="flex justify-center w-full"
-                  >
+                  <div key={movie.id} className="flex justify-center w-full">
                     <MovieCard movie={movie} />
                   </div>
                 ))}
               </div>
 
-              {/* Load More Button - Responsive design */}
+              {/* Load More div */}
               {hasMore && (
                 <div className="flex justify-center mt-6 sm:mt-8 mb-4">
-                  <button
+                  <div
                     onClick={loadMoreMovies}
                     disabled={loadingMore}
-                    className="flex items-center gap-2 bg-violet-500 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-lg hover:bg-violet-600 disabled:bg-violet-300 disabled:cursor-not-allowed transition-colors text-sm sm:text-base font-medium shadow-md hover:shadow-lg"
+                    className="flex items-center gap-2 bg-[#00FFFF] text-black px-6 py-3 rounded-lg disabled:bg-[#555] disabled:cursor-not-allowed hover:bg-[#FFC107] transition-colors font-medium shadow-md hover:shadow-lg hover:cursor-pointer"
+                    style={{
+                      fontSize: "clamp(0.75rem, 1.5vw, 1rem)",
+                    }}
                   >
                     {loadingMore ? (
                       <>
@@ -580,14 +525,19 @@ const Movies = () => {
                         <span>Load More Movies</span>
                       </>
                     )}
-                  </button>
+                  </div>
                 </div>
               )}
 
-              {/* End of results - Responsive text */}
+              {/* End of Results */}
               {!hasMore && displayMovies.length > 20 && (
                 <div className="text-center mt-6 sm:mt-8 mb-4">
-                  <p className="text-sm sm:text-base text-gray-500">
+                  <p
+                    className="text-[#B3B3B3]"
+                    style={{
+                      fontSize: "clamp(0.75rem, 1.5vw, 1rem)",
+                    }}
+                  >
                     You've reached the end of trending movies
                   </p>
                 </div>

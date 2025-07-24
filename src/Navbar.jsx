@@ -1,68 +1,81 @@
 import Logo from "./Components/Logo";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X as CloseIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import { useAppContext } from "./AppContext";
 
 function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
-  const [RecentSearches, setRecentSearches] = useState([]);
-  const [isSearchFocused, setisSearchFocused] = useState(false);
+  const { RecentSearches, setRecentSearches } = useAppContext();
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [highlightIndex, setHighlightIndex] = useState(-1);
   const searchContainerRef = useRef(null);
 
-  // for clicks outside the search bar
+  // Close dropdown when clicking outside
   useEffect(() => {
-    function handleClickOutside(event) {
+    function handleClickOutside(e) {
       if (
         searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target)
+        !searchContainerRef.current.contains(e.target)
       ) {
-        setisSearchFocused(false);
+        setIsSearchFocused(false);
+        setHighlightIndex(-1);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close mobile menu when window is resized to larger screen
+  // Close mobile menu on desktop resize
   useEffect(() => {
-    function handleResize() {
-      if (window.innerWidth >= 768) {
-        setIsMobileMenuOpen(false);
-      }
-    }
-
+    const handleResize = () => {
+      if (window.innerWidth >= 768) setIsMobileMenuOpen(false);
+    };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // searching movie entered by user
   function fetchSearchedMovies(searchQuery = UserSearch) {
-    if (!searchQuery || searchQuery.trim() === "") {
-      alert("Please enter a movie name");
-      return;
-    }
-
-    // Add to recent searches before fetching
-    setRecentSearches((prevSearches) => {
-      const newSearches = [
-        searchQuery,
-        ...prevSearches.filter((search) => search !== searchQuery),
-      ];
-      return newSearches.slice(0, 5);
+    if (!searchQuery.trim()) return;
+    setRecentSearches((prev) => {
+      const updated = [searchQuery, ...prev.filter((s) => s !== searchQuery)];
+      return updated.slice(0, 5);
     });
-
-    setisSearchFocused(false);
-    setIsMobileMenuOpen(false); // Close mobile menu after search
-    onSearch(searchQuery); 
+    setIsSearchFocused(false);
+    setHighlightIndex(-1);
+    onSearch(searchQuery);
   }
 
-  // Handle clicking on a recent search
   function handleRecentSearchClick(searchTerm) {
     setUserSearch(searchTerm);
     fetchSearchedMovies(searchTerm);
+  }
+
+  // Keyboard navigation for search dropdown
+  function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (highlightIndex >= 0 && RecentSearches[highlightIndex]) {
+        handleRecentSearchClick(RecentSearches[highlightIndex]);
+      } else {
+        fetchSearchedMovies();
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (RecentSearches.length > 0) {
+        setHighlightIndex((prev) => (prev + 1) % RecentSearches.length);
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (RecentSearches.length > 0) {
+        setHighlightIndex(
+          (prev) => (prev - 1 + RecentSearches.length) % RecentSearches.length
+        );
+      }
+    } else if (e.key === "Escape") {
+      setIsSearchFocused(false);
+      setHighlightIndex(-1);
+    }
   }
 
   const navItems = [
@@ -73,22 +86,23 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
   ];
 
   return (
-    <nav className="bg-amber-100 border-b-[1px] fixed top-0 left-0 right-0 z-50 w-full">
-      {/* Desktop Navigation */}
+    <nav className="bg-[#0D0D0F] border-b border-[#1A1A1F] fixed top-0 left-0 right-0 z-[9999] w-full text-white shadow-lg">
+      {/* Desktop Navbar */}
       <div className="hidden md:flex justify-between items-center py-2 px-4 sm:px-6 lg:px-8">
-        {/* Logo and Navigation Links */}
-        <div className="flex items-center gap-6 lg:gap-10">
-          <div className="flex-shrink-0">
-            <Logo />
-          </div>
-          <div className="flex items-center gap-4 lg:gap-6">
+        <div className="flex items-center gap-4 lg:gap-8">
+          <Logo />
+          <div className="flex items-center gap-3 lg:gap-5">
             {navItems.map((item) => (
               <NavLink key={item.to} to={item.to}>
-                {({isActive}) => (
+                {({ isActive }) => (
                   <div
-                    className={`p-2 hover:cursor-pointer hover:scale-102 hover:opacity-90 transition-all duration-200 text-sm lg:text-base ${
-                      isActive ? "text-stone-800 font-semibold border-b-2" : "text-gray-700 "
-                    }`}
+                    className={`px-2 py-1 cursor-pointer transition-all duration-200`}
+                    style={{
+                      fontSize: "clamp(0.85rem, 1.5vw, 1rem)", // Smooth scaling
+                      color: isActive ? "#00FFFF" : "#B3B3B3",
+                      fontWeight: isActive ? "600" : "400",
+                      borderBottom: isActive ? "2px solid #f67c02" : "none",
+                    }}
                   >
                     {item.label}
                   </div>
@@ -98,48 +112,67 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
           </div>
         </div>
 
-        {/* Search bar */}
+        {/* Desktop Search */}
         <div
-          className="flex flex-col relative w-64 lg:w-90 max-w-md "
+          className="flex flex-col relative w-60 sm:w-72 lg:w-90"
           ref={searchContainerRef}
         >
-          <div className="flex border border-gray-300 p-2 sm:p-3 rounded-full gap-2 justify-center items-center w-full bg-white">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Search Movies,TV-Shows and People"
-                className="focus:outline-none w-full text-sm sm:text-base px-2 bg-transparent"
-                value={UserSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-                onFocus={() => setisSearchFocused(true)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    fetchSearchedMovies();
-                  }
-                  if (e.key === "Escape") {
-                    setisSearchFocused(false);
-                  }
+          <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-[#1A1A1F] border border-[#333]">
+            <input
+              type="text"
+              placeholder="Search Movies, TV-Shows and People"
+              className="flex-1 bg-transparent text-white placeholder-[#777] focus:outline-none"
+              style={{
+                fontSize: "clamp(0.8rem, 1.5vw, 1rem)",
+              }}
+              value={UserSearch}
+              onChange={(e) => setUserSearch(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={(e) => {
+                // Close only if the blur is outside the container
+                if (!searchContainerRef.current.contains(e.relatedTarget)) {
+                  setIsSearchFocused(false);
+                }
+              }}
+              onKeyDown={handleKeyDown}
+            />
+
+            {/* Clear Button */}
+            {UserSearch && (
+              <div
+                onClick={() => {
+                  setUserSearch("");
+                  setHighlightIndex(-1);
                 }}
-              />
-            </div>
+                className="p-1 cursor-pointer hover:bg-[#333] rounded-full transition-colors duration-200"
+                aria-label="Clear search"
+              >
+                <CloseIcon className="w-4 h-4 text-gray-400 hover:text-white" />
+              </div>
+            )}
+
+            {/* Search Button */}
             <div
               onClick={() => fetchSearchedMovies()}
-              className="cursor-pointer hover:bg-gray-100 p-1 rounded-full flex-shrink-0 transition-colors duration-200"
+              className="cursor-pointer hover:bg-[#333] p-1 rounded-full transition-colors duration-200"
+              aria-label="Search"
             >
-              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[#00FFFF]" />
             </div>
           </div>
 
           {/* Recent Searches Dropdown */}
           {isSearchFocused && RecentSearches.length > 0 && (
-            <div className="absolute top-full w-full bg-white rounded-lg shadow-lg z-10 border mt-1">
-              <div className="p-2 text-xs text-gray-500 border-b">
+            <div className="absolute top-full w-full bg-[#1A1A1F] rounded-lg shadow-lg z-50 border border-[#333] mt-1">
+              <div className="p-2 text-xs text-[#B3B3B3] border-b border-[#333]">
                 Recent Searches
               </div>
               {RecentSearches.map((search, index) => (
                 <div
                   key={index}
-                  className="p-3 hover:bg-gray-100 cursor-pointer text-sm hover:rounded-lg break-words transition-colors duration-200"
+                  className={`p-3 text-sm cursor-pointer text-white transition-colors duration-200 ${
+                    index === highlightIndex ? "bg-[#333]" : "hover:bg-[#333]"
+                  }`}
                   onClick={() => handleRecentSearchClick(search)}
                 >
                   {search}
@@ -150,91 +183,104 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navbar */}
       <div className="md:hidden">
-        {/* Mobile Header */}
         <div className="flex justify-between items-center py-3 px-4">
-          <div className="">
-            <Logo />
-          </div>
+          <Logo />
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-lg hover:bg-amber-200 transition-colors duration-200"
-            aria-label="Toggle mobile menu"
+            className="p-2 rounded-lg hover:bg-[#1A1A1F] transition-colors duration-200"
+            aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
-              <X className="w-6 h-6 text-gray-700" />
+              <CloseIcon className="w-6 h-6 text-[#00FFFF]" />
             ) : (
-              <Menu className="w-6 h-6 text-gray-700" />
+              <Menu className="w-6 h-6 text-[#00FFFF]" />
             )}
           </button>
         </div>
 
-        {/* Mobile Menu Dropdown */}
         {isMobileMenuOpen && (
-          <div className="border-t border-gray-200 bg-amber-50">
+          <div className="border-t border-[#1A1A1F] bg-[#0D0D0F] text-white">
             {/* Mobile Search */}
-            <div className="p-4 border-b border-gray-200">
-              <div
-                className="flex flex-col relative"
-                ref={searchContainerRef}
-              >
-                <div className="flex border border-gray-300 p-3 rounded-full gap-2 justify-center items-center w-full bg-white">
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      placeholder="Search Movies and TV-Shows"
-                      className="focus:outline-none w-full text-base px-2 bg-transparent"
-                      value={UserSearch}
-                      onChange={(e) => setUserSearch(e.target.value)}
-                      onFocus={() => setisSearchFocused(true)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          fetchSearchedMovies();
-                        }
-                        if (e.key === "Escape") {
-                          setisSearchFocused(false);
-                        }
-                      }}
-                    />
-                  </div>
-                  <div
-                    onClick={() => fetchSearchedMovies()}
-                    className="cursor-pointer hover:bg-gray-100 p-2 rounded-full flex-shrink-0 transition-colors duration-200"
-                  >
-                    <Search className="w-5 h-5 text-gray-600" />
-                  </div>
-                </div>
+            <div
+              className="p-4 border-b border-[#1A1A1F]"
+              ref={searchContainerRef}
+            >
+              <div className="flex items-center gap-2 p-2 border border-[#333] rounded-xl bg-[#1A1A1F]">
+                <input
+                  type="text"
+                  placeholder="Search Movies and TV-Shows"
+                  className="flex-1 bg-transparent text-white placeholder-[#777] focus:outline-none"
+                  style={{
+                    fontSize: "clamp(0.9rem, 2vw, 1.1rem)",
+                  }}
+                  value={UserSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onKeyDown={handleKeyDown}
+                />
 
-                {/* Mobile Recent Searches */}
-                {isSearchFocused && RecentSearches.length > 0 && (
-                  <div className="absolute top-full w-full bg-white rounded-lg shadow-lg z-10 border mt-1">
-                    <div className="p-2 text-xs text-gray-500 border-b">
-                      Recent Searches
-                    </div>
-                    {RecentSearches.map((search, index) => (
-                      <div
-                        key={index}
-                        className="p-3 hover:bg-gray-100 cursor-pointer text-sm hover:rounded-lg break-words transition-colors duration-200"
-                        onClick={() => handleRecentSearchClick(search)}
-                      >
-                        {search}
-                      </div>
-                    ))}
-                  </div>
+                {/* Clear Button */}
+                {UserSearch && (
+                  <button
+                    onClick={() => {
+                      setUserSearch("");
+                      setHighlightIndex(-1);
+                    }}
+                    className="p-1 cursor-pointer hover:bg-[#333] rounded-full transition-colors duration-200"
+                    aria-label="Clear search"
+                  >
+                    <CloseIcon className="w-4 h-4 text-gray-400 hover:text-white" />
+                  </button>
                 )}
+
+                {/* Search Button */}
+                <button
+                  onClick={() => fetchSearchedMovies()}
+                  className="cursor-pointer hover:bg-[#333] p-2 rounded-full transition-colors duration-200"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5 text-[#00FFFF]" />
+                </button>
               </div>
+
+              {/* Mobile Recent Searches */}
+              {isSearchFocused && RecentSearches.length > 0 && (
+                <div className="absolute top-full w-full bg-[#1A1A1F] rounded-lg shadow-lg z-50 border border-[#333] mt-1">
+                  <div className="p-2 text-xs text-[#B3B3B3] border-b border-[#333]">
+                    Recent Searches
+                  </div>
+                  {RecentSearches.map((search, index) => (
+                    <div
+                      key={index}
+                      className={`p-3 text-sm cursor-pointer text-white transition-colors duration-200 ${
+                        index === highlightIndex
+                          ? "bg-[#333]"
+                          : "hover:bg-[#333]"
+                      }`}
+                      onClick={() => handleRecentSearchClick(search)}
+                    >
+                      {search}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Mobile Navigation Links */}
+            {/* Mobile Nav Links */}
             <div className="py-2">
               {navItems.map((item) => (
                 <NavLink key={item.to} to={item.to}>
-                  {({isActive}) => (
+                  {({ isActive }) => (
                     <div
-                      className={`block px-4 py-3 text-base hover:bg-amber-200 transition-colors duration-200 ${
-                        isActive ? "text-stone-800 font-semibold bg-amber-200" : "text-gray-700"
-                      }`}
+                      className={`block px-4 py-3 transition-colors duration-200`}
+                      style={{
+                        fontSize: "clamp(0.9rem, 2vw, 1.1rem)",
+                        color: isActive ? "#00FFFF" : "#B3B3B3",
+                        fontWeight: isActive ? "600" : "400",
+                        backgroundColor: isActive ? "#1A1A1F" : "transparent",
+                      }}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {item.label}

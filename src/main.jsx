@@ -7,7 +7,6 @@ import Landing from './Landing.jsx';
 import Layout from './Layout.jsx';
 import ShowCard from './Components/ShowCard.jsx';
 import SearchResults from './SearchResults.jsx';
-import Personalize from './Components/Personalize.jsx';
 import { createHashRouter, RouterProvider } from "react-router-dom";
 
 const router = createHashRouter([
@@ -39,10 +38,7 @@ const router = createHashRouter([
         path: "ShowCard",
         element: <ShowCard></ShowCard>,
       },
-      {
-        path: "Personalize",
-        element: <Personalize></Personalize>,
-      },
+      
     ],
   },
 ]);

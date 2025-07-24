@@ -8,12 +8,13 @@ function Layout() {
   const navigate = useNavigate();
 
   function handleSearch(searchQuery) {
+    if (!searchQuery.trim()) return;
     navigate(`/search/${encodeURIComponent(searchQuery)}`);
   }
 
   return (
     <AppProvider>
-      <div className="min-h-screen bg-amber-50 flex flex-col overflow-x-hidden">
+      <div className="min-h-screen bg-[#0D0D0F] flex flex-col overflow-x-hidden text-white">
         {/* Navbar */}
         <Navbar
           onSearch={handleSearch}
@@ -21,18 +22,25 @@ function Layout() {
           setUserSearch={setUserSearch}
         />
 
-        {/* Main Content Area */}
-        <main className="flex-1 w-full mt-16 sm:mt-20 px-2 sm:px-4 md:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto w-full">
+        {/* Main Content */}
+        <main className="flex-1 w-full mt-16 sm:mt-20 px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12">
+          <div className="max-w-[1400px] mx-auto w-full">
             <Outlet />
           </div>
         </main>
 
         {/* Footer */}
-        <footer className="mt-auto py-3 sm:py-4 px-3 sm:px-4 md:px-6 lg:px-8 bg-white border-t border-gray-200">
-          <div className="max-w-7xl mx-auto">
-            <p className="text-center text-xs sm:text-sm text-gray-500">
-              © 2025 MovieHunt. All rights reserved.
+        <footer className="mt-auto py-4 sm:py-5 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-[#000000] border-t border-[#333]">
+          <div className="max-w-[1400px] mx-auto w-full text-center">
+            <p
+              className="text-[#B3B3B3]"
+              style={{
+                fontSize: "clamp(0.75rem, 1.5vw, 1rem)", // Smooth scaling
+              }}
+            >
+              © 2025{" "}
+              <span className="text-[#FFD700] font-medium">MovieHunt</span>. All
+              rights reserved.
             </p>
           </div>
         </footer>
