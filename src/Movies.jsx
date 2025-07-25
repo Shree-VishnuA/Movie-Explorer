@@ -44,14 +44,6 @@ const Movies = () => {
     { id: 878, name: "Sci-Fi" },
   ];
 
-  const sortOptions = [
-    { value: "popularity.desc", label: "Popularity (High → Low)" },
-    { value: "popularity.asc", label: "Popularity (Low → High)" },
-    { value: "vote_average.desc", label: "Rating (High → Low)" },
-    { value: "vote_average.asc", label: "Rating (Low → High)" },
-    { value: "primary_release_date.desc", label: "Newest" },
-    { value: "primary_release_date.asc", label: "Oldest" },
-  ];
 
   const languages = [
     { code: "en", name: "English" },
@@ -284,7 +276,7 @@ const Movies = () => {
                   <label className="block text-[#00FFFF] mb-2">Release Year</label>
                   <select className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]" onChange={(e) => handleFilterChange("year", e.target.value)} value={filters.year}>
                     <option value="">Select Year</option>
-                    {Array.from({ length: 24 }, (_, i) => 2024 - i).map((yr) => <option key={yr} value={yr}>{yr}</option>)}
+                    {Array.from({ length: 24 }, (_, i) => 2025 - i).map((yr) => <option key={yr} value={yr}>{yr}</option>)}
                   </select>
                 </div>
 
@@ -296,12 +288,6 @@ const Movies = () => {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-[#00FFFF] mb-2">Sort By</label>
-                  <select className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]" onChange={(e) => handleFilterChange("sortBy", e.target.value)} value={filters.sortBy}>
-                    {sortOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-                  </select>
-                </div>
 
                 <div>
                   <label className="block text-[#00FFFF] mb-2">Language</label>
@@ -321,10 +307,10 @@ const Movies = () => {
               </div>
 
               <div className="flex flex-wrap gap-4 justify-center">
-                <div onClick={applyFilters} className="bg-[#333] text-white  px-6 py-3 rounded-lg hover:bg-[#FFC107] flex items-center gap-2">
+                <div onClick={applyFilters} className="bg-[#333] text-white  px-6 py-3 rounded-lg hover:bg-[#444] flex items-center gap-2 hover:cursor-pointer">
                   <Search size={18} /> Apply Filters
                 </div>
-                <div onClick={resetFilters} className="bg-[#333] text-white px-6 py-3 rounded-lg hover:bg-[#444] flex items-center gap-2">
+                <div onClick={resetFilters} className="bg-[#333] text-white px-6 py-3 rounded-lg hover:bg-[#444] flex items-center gap-2 hover:cursor-pointer">
                   <RotateCcw size={18} /> Reset Filters
                 </div>
               </div>

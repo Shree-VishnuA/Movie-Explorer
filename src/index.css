@@ -64,3 +64,13 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Hide scrollbar but allow scroll */
+.scrollbar-hide {
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
+}
+

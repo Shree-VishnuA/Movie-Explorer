@@ -263,14 +263,14 @@ function TVshows() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <div
                 onClick={applyFilters}
-                className="bg-[#333] text-white px-6 py-3 rounded-md hover:bg-[#444] transition-all flex items-center justify-center gap-2 text-[clamp(0.85rem,1.5vw,1.1rem)] font-medium"
+                className="bg-[#333] text-white px-6 py-3 rounded-md hover:bg-[#444] transition-all flex items-center justify-center gap-2 text-[clamp(0.85rem,1.5vw,1.1rem)] font-medium hover:cursor-pointer"
               >
                 <Search className="h-4 w-4" />
                 Apply Filters
               </div>
               <div
                 onClick={resetFilters}
-                className="bg-[#333] text-white px-6 py-3 rounded-md hover:bg-[#444] transition-all flex items-center justify-center gap-2 text-[clamp(0.85rem,1.5vw,1.1rem)] font-medium"
+                className="bg-[#333] text-white px-6 py-3 rounded-md hover:bg-[#444] transition-all flex items-center justify-center gap-2 text-[clamp(0.85rem,1.5vw,1.1rem)] font-medium hover:cursor-pointer"
               >
                 <RotateCcw className="h-4 w-4" />
                 Reset Filters
