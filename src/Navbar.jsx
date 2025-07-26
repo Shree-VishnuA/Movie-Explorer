@@ -22,11 +22,11 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
         setHighlightIndex(-1);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // Close mobile menu on desktop resize
+  // Auto-close mobile menu when resizing to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) setIsMobileMenuOpen(false);
@@ -96,9 +96,9 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
               <NavLink key={item.to} to={item.to}>
                 {({ isActive }) => (
                   <div
-                    className={`px-2 py-1 cursor-pointer transition-all duration-200`}
+                    className="px-2 py-1 cursor-pointer transition-all duration-200"
                     style={{
-                      fontSize: "clamp(0.85rem, 1.5vw, 1rem)", // Smooth scaling
+                      fontSize: "clamp(0.85rem, 1.5vw, 1rem)",
                       color: isActive ? "#00FFFF" : "#B3B3B3",
                       fontWeight: isActive ? "600" : "400",
                       borderBottom: isActive ? "2px solid #f67c02" : "none",
@@ -128,12 +128,6 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
               value={UserSearch}
               onChange={(e) => setUserSearch(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
-              onBlur={(e) => {
-                // Close only if the blur is outside the container
-                if (!searchContainerRef.current.contains(e.relatedTarget)) {
-                  setIsSearchFocused(false);
-                }
-              }}
               onKeyDown={handleKeyDown}
             />
 
@@ -173,7 +167,10 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
                   className={`p-3 text-sm cursor-pointer text-white transition-colors duration-200 ${
                     index === highlightIndex ? "bg-[#333]" : "hover:bg-[#333]"
                   }`}
-                  onClick={() => handleRecentSearchClick(search)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent dropdown close before click
+                    handleRecentSearchClick(search);
+                  }}
                 >
                   {search}
                 </div>
@@ -187,9 +184,9 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
       <div className="md:hidden">
         <div className="flex justify-between items-center py-3 px-4">
           <Logo />
-          <button
+          <div
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-lg hover:bg-[#1A1A1F] transition-colors duration-200"
+            className="p-2 rounded-lg hover:bg-[#1A1A1F] transition-colors duration-200 border-[1px] border-white/10"
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
@@ -197,7 +194,7 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
             ) : (
               <Menu className="w-6 h-6 text-[#00FFFF]" />
             )}
-          </button>
+          </div>
         </div>
 
         {isMobileMenuOpen && (
@@ -223,7 +220,7 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
 
                 {/* Clear Button */}
                 {UserSearch && (
-                  <button
+                  <div
                     onClick={() => {
                       setUserSearch("");
                       setHighlightIndex(-1);
@@ -232,22 +229,22 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
                     aria-label="Clear search"
                   >
                     <CloseIcon className="w-4 h-4 text-gray-400 hover:text-white" />
-                  </button>
+                  </div>
                 )}
 
                 {/* Search Button */}
-                <button
+                <div
                   onClick={() => fetchSearchedMovies()}
                   className="cursor-pointer hover:bg-[#333] p-2 rounded-full transition-colors duration-200"
                   aria-label="Search"
                 >
                   <Search className="w-5 h-5 text-[#00FFFF]" />
-                </button>
+                </div>
               </div>
 
               {/* Mobile Recent Searches */}
               {isSearchFocused && RecentSearches.length > 0 && (
-                <div className="absolute top-full w-full bg-[#1A1A1F] rounded-lg shadow-lg z-50 border border-[#333] mt-1">
+                <div className="absolute top-full left-0 w-full bg-[#1A1A1F] rounded-lg shadow-lg z-50 border border-[#333] mt-1">
                   <div className="p-2 text-xs text-[#B3B3B3] border-b border-[#333]">
                     Recent Searches
                   </div>
@@ -259,7 +256,11 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
                           ? "bg-[#333]"
                           : "hover:bg-[#333]"
                       }`}
-                      onClick={() => handleRecentSearchClick(search)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRecentSearchClick(search);
+                        setIsMobileMenuOpen(false); // Close menu after selection
+                      }}
                     >
                       {search}
                     </div>
@@ -274,7 +275,7 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
                 <NavLink key={item.to} to={item.to}>
                   {({ isActive }) => (
                     <div
-                      className={`block px-4 py-3 transition-colors duration-200`}
+                      className="block px-4 py-3 transition-colors duration-200"
                       style={{
                         fontSize: "clamp(0.9rem, 2vw, 1.1rem)",
                         color: isActive ? "#00FFFF" : "#B3B3B3",
