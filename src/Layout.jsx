@@ -29,21 +29,7 @@ function Layout() {
           </div>
         </main>
 
-        {/* Footer */}
-        <footer className="mt-auto py-4 sm:py-5 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-[#000000] border-t border-[#333]">
-          <div className="max-w-[1400px] mx-auto w-full text-center">
-            <p
-              className="text-[#B3B3B3]"
-              style={{
-                fontSize: "clamp(0.75rem, 1.5vw, 1rem)", // Smooth scaling
-              }}
-            >
-              © 2025{" "}
-              <span className="text-[#FFD700] font-medium">MovieHunt</span>. All
-              rights reserved.
-            </p>
-          </div>
-        </footer>
+        
       </div>
     </AppProvider>
   );

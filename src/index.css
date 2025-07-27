@@ -7,7 +7,7 @@
 
   color-scheme: light dark;
   color: rgba(4, 4, 4, 0.87);
-  background-color: #e9e5c3;
+  background-color: #0D0D0F;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -72,5 +72,32 @@ button:focus-visible {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* For Chrome, Safari, and Opera */
+}
+
+
+@keyframes fadeInScale {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-fadeInScale {
+  animation: fadeInScale 0.3s ease-out;
+}
+
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 20px #f67c02; }
+  50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 40px #00FFFF; }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 2.5s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 1.8s ease-in-out infinite;
 }
 
