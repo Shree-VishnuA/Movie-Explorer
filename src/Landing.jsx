@@ -186,8 +186,9 @@ function LandingPage() {
         {/* Hero Section */}
         <div className="py-10 text-center">
           <div className="font-bold mb-4 text-[clamp(2rem,3vw,3.5rem)]">
-            Discover <span className="text-[#f67c02]">Movies</span>, <span className="text-[cyan]">TV Shows</span> & <span className="text-[#FFD700]">Famous People</span>{" "}
-            Instantly
+            Discover <span className="text-[#f67c02]">Movies</span>,{" "}
+            <span className="text-[cyan]">TV Shows</span> &{" "}
+            <span className="text-[#FFD700]">Famous People</span> Instantly
           </div>
           <p className="text-[#B3B3B3] max-w-4xl mx-auto mb-8 text-[clamp(0.9rem,2vw,1.2rem)]">
             Browse trending titles, explore cast details, and stay updated — all
@@ -287,7 +288,11 @@ const Section = ({ title, items, type, onSelect, isPerson, hint }) => {
                 alt={item.name || item.title}
                 className="w-full aspect-[2/3] object-cover group-hover:brightness-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Always show info on mobile, hover-only on larger screens */}
+              <div
+                className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent 
+    opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity pointer-events-none"
+              >
                 <div className="absolute bottom-4 left-4 right-4">
                   <h3 className="text-white font-semibold line-clamp-2">
                     {item.title || item.name}
