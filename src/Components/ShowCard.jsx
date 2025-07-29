@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+
+
+
 function ShowCard({ show = {} }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -88,7 +91,7 @@ function ShowCard({ show = {} }) {
       {/* Show Card */}
       <motion.div
         layoutId={`show-card-${show?.id}`}
-        className="w-full max-w-xs mx-auto bg-black/40 backdrop-blur-md border border-white/30 rounded-xl shadow-lg hover:shadow-[0_0_15px_#f67c02] transition-all duration-300 cursor-pointer overflow-hidden group scrollbar-hide"
+        className="w-full max-w-xs mx-auto bg-black/40 backdrop-blur-md border border-white/30 rounded-xl shadow-lg hover:shadow-[0_0_15px_cyan] transition-all duration-300 cursor-pointer overflow-hidden group scrollbar-hide"
         onClick={() => setIsModalOpen(true)}
       >
         {/* Poster */}

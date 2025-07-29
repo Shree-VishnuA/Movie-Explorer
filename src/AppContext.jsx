@@ -137,86 +137,102 @@ export const AppProvider = ({ children }) => {
   };
 
   // Update Movies data (like your TV shows version)
-const updateMoviesData = (newData) => {
-  setMoviesData((prev) => ({
-    ...prev,
-    ...newData, // Merge new data into existing state
-  }));
-};
+  const updateMoviesData = (newData) => {
+    setMoviesData((prev) => ({
+      ...prev,
+      ...newData, // Merge new data into existing state
+    }));
+  };
 
- 
   function resetMoviesData() {
-  setMoviesData({
-    movies: [],
-    currentPage: 1,
-    totalPages: 0,
-    hasMore: true,
-  });
-
-  // Auto-fetch trending movies after clearing
-  fetch(`https://api.themoviedb.org/3/trending/movie/day?api_key=${apiKey}&page=1`)
-    .then((res) => res.json())
-    .then((data) => {
-      setMoviesData({
-        movies: data.results || [],
-        currentPage: 1,
-        totalPages: data.total_pages || 0,
-        hasMore: data.total_pages > 1,
-      });
-    })
-    .catch(() => {
-      setMoviesData({
-        movies: [],
-        currentPage: 1,
-        totalPages: 0,
-        hasMore: false,
-      });
+    setMoviesData({
+      movies: [],
+      currentPage: 1,
+      totalPages: 0,
+      hasMore: true,
     });
-}
 
-  // Get Filtered TV Shows
+    // Auto-fetch trending movies after clearing
+    fetch(
+      `https://api.themoviedb.org/3/trending/movie/day?api_key=${apiKey}&page=1`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setMoviesData({
+          movies: data.results || [],
+          currentPage: 1,
+          totalPages: data.total_pages || 0,
+          hasMore: data.total_pages > 1,
+        });
+      })
+      .catch(() => {
+        setMoviesData({
+          movies: [],
+          currentPage: 1,
+          totalPages: 0,
+          hasMore: false,
+        });
+      });
+  }
+
   const getFilteredTVShows = () => {
-    return tvShowsData.tvShows
+    let shows = tvShowsData.tvShows
       .filter((show) => show.vote_count > 0)
       .filter((show) => show.poster_path || show.backdrop_path)
       .filter((show) =>
-        tvShowFilters.genre ? show.genre_ids.includes(Number(tvShowFilters.genre)) : true
+        tvShowFilters.genre
+          ? show.genre_ids.includes(Number(tvShowFilters.genre))
+          : true
       )
       .filter((show) =>
-        tvShowFilters.country ? show.origin_country?.includes(tvShowFilters.country) : true
+        tvShowFilters.country
+          ? show.origin_country?.includes(tvShowFilters.country)
+          : true
       )
       .filter((show) =>
-        tvShowFilters.year ? show.first_air_date?.startsWith(tvShowFilters.year) : true
-      )
-      .sort((a, b) => {
-        switch (tvShowFilters.sortBy) {
-          case "popularity.asc":
-            return a.popularity - b.popularity;
-          case "popularity.desc":
-            return b.popularity - a.popularity;
-          case "first_air_date.asc":
-            return new Date(a.first_air_date) - new Date(b.first_air_date);
-          case "first_air_date.desc":
-            return new Date(b.first_air_date) - new Date(a.first_air_date);
-          case "vote_average.asc":
-            return a.vote_average - b.vote_average;
-          case "vote_average.desc":
-            return b.vote_average - a.vote_average;
-          case "name.asc":
-            return a.name.localeCompare(b.name);
-          case "name.desc":
-            return b.name.localeCompare(a.name);
-          default:
-            return 0;
-        }
-      });
+        tvShowFilters.year
+          ? show.first_air_date?.startsWith(tvShowFilters.year)
+          : true
+      );
+
+    // If sortBy is "none", just return without sorting
+    if (tvShowFilters.sortBy === "none") {
+      return shows;
+    }
+
+    return shows.sort((a, b) => {
+      switch (tvShowFilters.sortBy) {
+        case "popularity.asc":
+          return a.popularity - b.popularity;
+        case "popularity.desc":
+          return b.popularity - a.popularity;
+        case "first_air_date.asc":
+          return new Date(a.first_air_date) - new Date(b.first_air_date);
+        case "first_air_date.desc":
+          return new Date(b.first_air_date) - new Date(a.first_air_date);
+        case "vote_average.asc":
+          return a.vote_average - b.vote_average;
+        case "vote_average.desc":
+          return b.vote_average - a.vote_average;
+        case "vote_count.asc":
+          return (a.vote_count || 0) - (b.vote_count || 0);
+        case "vote_count.desc":
+          return (b.vote_count || 0) - (a.vote_count || 0);
+        case "name.asc":
+          return a.name.localeCompare(b.name);
+        case "name.desc":
+          return b.name.localeCompare(a.name);
+        default:
+          return 0;
+      }
+    });
   };
 
   const contextValue = {
     // Movies
     moviesData,
     setMoviesData,
-    resetMoviesData ,
+    resetMoviesData,
     updateMoviesData,
 
     // TV Shows
@@ -232,8 +248,7 @@ const updateMoviesData = (newData) => {
     apiKey,
 
     RecentSearches,
-  setRecentSearches,
-
+    setRecentSearches,
   };
 
   return (

@@ -12,6 +12,16 @@ import {
 import MovieCard from "./Components/MovieCard";
 import { useAppContext } from "./AppContext";
 
+// --- Full-Screen Loader (Responsive) ---
+const FullScreenLoader = () => (
+  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div className="relative w-16 h-16 sm:w-24 sm:h-24">
+      <div className="absolute inset-0 rounded-full border-4 sm:border-6 border-t-[#f67c02] border-b-[#00FFFF] border-l-transparent border-r-transparent animate-spin-slow"></div>
+      <div className="absolute inset-4 sm:inset-6 bg-[#f67c02] rounded-full animate-pulse-glow"></div>
+    </div>
+  </div>
+);
+
 const Movies = () => {
   const { apiKey, moviesData, updateMoviesData, resetMoviesData } =
     useAppContext();
@@ -43,7 +53,6 @@ const Movies = () => {
     { id: 10749, name: "Romance" },
     { id: 878, name: "Sci-Fi" },
   ];
-
 
   const languages = [
     { code: "en", name: "English" },
@@ -131,7 +140,10 @@ const Movies = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function scrollToBottom() {
-    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
   }
 
   function toggleFilters() {
@@ -182,7 +194,12 @@ const Movies = () => {
       try {
         const nextPage = currentPage + 1;
         const hasActiveFilters =
-          filters.genre || filters.year || filters.rating || filters.language || filters.region || filters.sortBy !== "popularity.desc";
+          filters.genre ||
+          filters.year ||
+          filters.rating ||
+          filters.language ||
+          filters.region ||
+          filters.sortBy !== "popularity.desc";
 
         let url = hasActiveFilters
           ? `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&page=${nextPage}`
@@ -218,40 +235,60 @@ const Movies = () => {
   }
 
   async function resetFilters() {
-    setFilters({ genre: "", year: "", rating: "", sortBy: "popularity.desc", language: "", region: "" });
+    setFilters({
+      genre: "",
+      year: "",
+      rating: "",
+      sortBy: "popularity.desc",
+      language: "",
+      region: "",
+    });
     fetchTrendingMovies(1, true);
     setisPersonalizerSelected(false);
   }
 
-  const displayMovies = movies.filter((m) => m.vote_count > 0 && (m.poster_path || m.backdrop_path));
+  const displayMovies = movies.filter(
+    (m) => m.vote_count > 0 && (m.poster_path || m.backdrop_path)
+  );
 
   return (
     <div className="min-h-screen bg-[#0D0D0F] text-white relative">
       {/* Scroll divs */}
       {showScrollToTop && (
-        <div onClick={scrollToTop} className="fixed bottom-2 right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-lg hover:bg-[#f67c02] cursor-pointer z-50">
+        <div
+          onClick={scrollToTop}
+          className="fixed bottom-2 right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-lg hover:bg-[#e56700] cursor-pointer z-50"
+        >
           <ChevronUp />
         </div>
       )}
       {showScrollToDown && (
-        <div onClick={scrollToBottom} className="fixed top-18 right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-lg hover:bg-[#f67c02] cursor-pointer z-50">
+        <div
+          onClick={scrollToBottom}
+          className="fixed top-18 right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-lg hover:bg-[#e56700] cursor-pointer z-50"
+        >
           <ChevronDown />
         </div>
       )}
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center h-screen gap-4 text-[#00FFFF]">
-          <span>Loading Movies...</span>
-          <LoaderCircle className="animate-spin text-[#f67c02]" size={40} />
-        </div>
+        <FullScreenLoader /> // <-- Replaced the old loader here
       ) : (
         <div className="max-w-[1400px] mx-auto px-4">
-          <h1 className="text-center font-bold text-[#f67c02] text-3xl my-6">Trending Movies</h1>
+          <h1 className="text-center font-bold text-[#f67c02] text-3xl my-6">
+            Trending Movies
+          </h1>
 
           {/* Filters Toggle */}
           <div className="flex justify-center mb-6 hover:cursor-pointer">
-            <div onClick={toggleFilters} className={`px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all ${isPersonalizerSelected ? "bg-[#333]" : "bg-[#f67c02]"}`}>
-              <Filter size={18} /> {isPersonalizerSelected ? "Hide Filters" : "Show Filters"}
+            <div
+              onClick={toggleFilters}
+              className={`px-6 py-3 rounded-lg text-black font-semibold flex items-center gap-2 transition-all ${
+                isPersonalizerSelected ? "bg-[#333]" : "bg-[#f67c02] hover:bg-[#e56700]"
+              }`}
+            >
+              <Filter size={18} />{" "}
+              {isPersonalizerSelected ? "Hide Filters" : "Show Filters"}
             </div>
           </div>
 
@@ -259,58 +296,122 @@ const Movies = () => {
           {isPersonalizerSelected && (
             <div className="bg-[#1A1A1F] p-6 rounded-lg shadow-lg border border-[#333] mb-8">
               <div className="flex justify-between mb-6">
-                <h3 className="text-white text-lg font-semibold">Filter Movies</h3>
-                <X className="cursor-pointer text-[#B3B3B3]" onClick={toggleFilters} />
+                <h3 className="text-white text-lg font-semibold">
+                  Filter Movies
+                </h3>
+                <X
+                  className="cursor-pointer text-[#B3B3B3]"
+                  onClick={toggleFilters}
+                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-6">
                 <div>
-                  <label className="block text-[#00FFFF] mb-2">Genre</label>
-                  <select className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]" onChange={(e) => handleFilterChange("genre", e.target.value)} value={filters.genre}>
+                  <label className="block text-[#f67c02] mb-2">Genre</label>
+                  <select
+                    className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]"
+                    onChange={(e) =>
+                      handleFilterChange("genre", e.target.value)
+                    }
+                    value={filters.genre}
+                  >
                     <option value="">Select Genre</option>
-                    {genresList.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+                    {genresList.map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[#00FFFF] mb-2">Release Year</label>
-                  <select className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]" onChange={(e) => handleFilterChange("year", e.target.value)} value={filters.year}>
+                  <label className="block text-[#f67c02] mb-2">
+                    Release Year
+                  </label>
+                  <select
+                    className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]"
+                    onChange={(e) => handleFilterChange("year", e.target.value)}
+                    value={filters.year}
+                  >
                     <option value="">Select Year</option>
-                    {Array.from({ length: 24 }, (_, i) => 2025 - i).map((yr) => <option key={yr} value={yr}>{yr}</option>)}
+                    {Array.from({ length: 24 }, (_, i) => 2025 - i).map(
+                      (yr) => (
+                        <option key={yr} value={yr}>
+                          {yr}
+                        </option>
+                      )
+                    )}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[#00FFFF] mb-2">Minimum Rating</label>
-                  <select className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]" onChange={(e) => handleFilterChange("rating", e.target.value)} value={filters.rating}>
+                  <label className="block text-[#f67c02] mb-2">
+                    Minimum Rating
+                  </label>
+                  <select
+                    className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]"
+                    onChange={(e) =>
+                      handleFilterChange("rating", e.target.value)
+                    }
+                    value={filters.rating}
+                  >
                     <option value="">Any Rating</option>
-                    {[1,2,3,4,5,6,7,8,9].map((r) => <option key={r} value={r}>{r}+</option>)}
-                  </select>
-                </div>
-
-
-                <div>
-                  <label className="block text-[#00FFFF] mb-2">Language</label>
-                  <select className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]" onChange={(e) => handleFilterChange("language", e.target.value)} value={filters.language}>
-                    <option value="">Any</option>
-                    {languages.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((r) => (
+                      <option key={r} value={r}>
+                        {r}+
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[#00FFFF] mb-2">Region</label>
-                  <select className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]" onChange={(e) => handleFilterChange("region", e.target.value)} value={filters.region}>
+                  <label className="block text-[#f67c02] mb-2">Language</label>
+                  <select
+                    className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]"
+                    onChange={(e) =>
+                      handleFilterChange("language", e.target.value)
+                    }
+                    value={filters.language}
+                  >
                     <option value="">Any</option>
-                    {regions.map((r) => <option key={r.code} value={r.code}>{r.name}</option>)}
+                    {languages.map((l) => (
+                      <option key={l.code} value={l.code}>
+                        {l.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[#f67c02] mb-2">Region</label>
+                  <select
+                    className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]"
+                    onChange={(e) =>
+                      handleFilterChange("region", e.target.value)
+                    }
+                    value={filters.region}
+                  >
+                    <option value="">Any</option>
+                    {regions.map((r) => (
+                      <option key={r.code} value={r.code}>
+                        {r.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-4 justify-center">
-                <div onClick={applyFilters} className="bg-[#333] text-white  px-6 py-3 rounded-lg hover:bg-[#444] flex items-center gap-2 hover:cursor-pointer">
+                <div
+                  onClick={applyFilters}
+                  className="bg-[#333] text-white  px-6 py-3 rounded-lg hover:bg-[#444] flex items-center gap-2 hover:cursor-pointer"
+                >
                   <Search size={18} /> Apply Filters
                 </div>
-                <div onClick={resetFilters} className="bg-[#333] text-white px-6 py-3 rounded-lg hover:bg-[#444] flex items-center gap-2 hover:cursor-pointer">
+                <div
+                  onClick={resetFilters}
+                  className="bg-[#333] text-white px-6 py-3 rounded-lg hover:bg-[#444] flex items-center gap-2 hover:cursor-pointer"
+                >
                   <RotateCcw size={18} /> Reset Filters
                 </div>
               </div>
@@ -319,7 +420,9 @@ const Movies = () => {
 
           {/* Movies Grid */}
           {displayMovies.length === 0 ? (
-            <div className="text-center text-[#B3B3B3] py-12">No movies found.</div>
+            <div className="text-center text-[#B3B3B3] py-12">
+              No movies found.
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {displayMovies.map((movie) => (
@@ -331,15 +434,25 @@ const Movies = () => {
           {/* Load More */}
           {hasMore && (
             <div className="flex justify-center mt-8">
-              <div onClick={loadMoreMovies} disabled={loadingMore} className="bg-[#00FFFF] text-black px-6 py-3 rounded-lg hover:bg-[#FFC107] flex items-center gap-2 hover:cursor-pointer mb-4">
-                {loadingMore ? <LoaderCircle className="animate-spin" size={20} /> : <Plus size={18} />}
+              <div
+                onClick={loadMoreMovies}
+                disabled={loadingMore}
+                className="bg-[#f67c02] text-black px-6 py-3 rounded-lg hover:bg-[#e56700] flex items-center gap-2 hover:cursor-pointer mb-4"
+              >
+                {loadingMore ? (
+                  <LoaderCircle className="animate-spin" size={20} />
+                ) : (
+                  <Plus size={18} />
+                )}
                 {loadingMore ? "Loading..." : "Load More"}
               </div>
             </div>
           )}
 
           {!hasMore && displayMovies.length > 20 && (
-            <p className="text-center text-[#B3B3B3] mt-8">You've reached the end of the list.</p>
+            <p className="text-center text-[#B3B3B3] mt-8">
+              You've reached the end of the list.
+            </p>
           )}
         </div>
       )}

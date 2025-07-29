@@ -78,11 +78,12 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
     }
   }
 
+  // Nav items with custom colors
   const navItems = [
-    { to: "/", label: "Home" },
-    { to: "/Movies", label: "Movies" },
-    { to: "/TVshows", label: "TV Shows" },
-    { to: "/People", label: "People" },
+    { to: "/", label: "Home", activeColor: "white" },
+    { to: "/Movies", label: "Movies", activeColor: "#f67c02" },
+    { to: "/TVshows", label: "TV Shows", activeColor: "cyan" },
+    { to: "/People", label: "People", activeColor: "yellow" },
   ];
 
   return (
@@ -96,12 +97,20 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
               <NavLink key={item.to} to={item.to}>
                 {({ isActive }) => (
                   <div
-                    className="px-2 py-1 cursor-pointer transition-all duration-200"
+                    className="px-2 py-1 cursor-pointer transition-all duration-300"
                     style={{
                       fontSize: "clamp(0.85rem, 1.5vw, 1rem)",
-                      color: isActive ? "#00FFFF" : "#B3B3B3",
+                      color: isActive ? item.activeColor : "#B3B3B3",
                       fontWeight: isActive ? "600" : "400",
-                      borderBottom: isActive ? "2px solid #f67c02" : "none",
+                      borderBottom: isActive
+                        ? `2px solid ${item.activeColor}`
+                        : "none",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) e.currentTarget.style.color = item.activeColor;
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) e.currentTarget.style.color = "#B3B3B3";
                     }}
                   >
                     {item.label}
@@ -168,7 +177,7 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
                     index === highlightIndex ? "bg-[#333]" : "hover:bg-[#333]"
                   }`}
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent dropdown close before click
+                    e.stopPropagation(); 
                     handleRecentSearchClick(search);
                   }}
                 >
@@ -259,7 +268,7 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRecentSearchClick(search);
-                        setIsMobileMenuOpen(false); // Close menu after selection
+                        setIsMobileMenuOpen(false);
                       }}
                     >
                       {search}
@@ -275,12 +284,18 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
                 <NavLink key={item.to} to={item.to}>
                   {({ isActive }) => (
                     <div
-                      className="block px-4 py-3 transition-colors duration-200"
+                      className="block px-4 py-3 transition-colors duration-300"
                       style={{
                         fontSize: "clamp(0.9rem, 2vw, 1.1rem)",
-                        color: isActive ? "#00FFFF" : "#B3B3B3",
+                        color: isActive ? item.activeColor : "#B3B3B3",
                         fontWeight: isActive ? "600" : "400",
                         backgroundColor: isActive ? "#1A1A1F" : "transparent",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) e.currentTarget.style.color = item.activeColor;
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) e.currentTarget.style.color = "#B3B3B3";
                       }}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >

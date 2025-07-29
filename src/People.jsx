@@ -3,6 +3,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoaderCircle, Plus, ChevronUp, ChevronDown } from "lucide-react";
 
+const FullScreenLoader = () => (
+  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div className="relative w-16 h-16 sm:w-24 sm:h-24">
+      <div className="absolute inset-0 rounded-full border-4 sm:border-6 border-t-[#f67c02] border-b-[#00FFFF] border-l-transparent border-r-transparent animate-spin-slow"></div>
+      <div className="absolute inset-4 sm:inset-6 bg-[#f67c02] rounded-full animate-pulse-glow"></div>
+    </div>
+  </div>
+);
+
 function People() {
   const api_key = import.meta.env.VITE_TMDB_API_KEY;
   const [people, setPeople] = useState([]);
@@ -103,7 +112,7 @@ function People() {
         <div
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="fixed bottom-2 right-2 sm:bottom-4 sm:right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-lg hover:bg-[#f67c02] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:ring-offset-2"
+          className="fixed bottom-2 right-2 sm:bottom-4 sm:right-2 bg-[#1A1A1F] text-[#FFC107]  p-3 rounded-full shadow-lg hover:bg-[#FFC107]  hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FFC107]  focus:ring-offset-2"
         >
           <ChevronUp className="h-5 w-5" />
         </div>
@@ -114,7 +123,7 @@ function People() {
         <div
           onClick={scrollToBottom}
           aria-label="Scroll to bottom"
-          className="fixed top-18 right-2 sm:top-18 sm:right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-lg hover:bg-[#f67c02] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:ring-offset-2"
+          className="fixed top-18 right-2 sm:top-18 sm:right-2 bg-[#1A1A1F] text-[#FFC107]  p-3 rounded-full shadow-lg hover:bg-[#FFC107]  hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:ring-offset-2"
         >
           <ChevronDown className="h-5 w-5" />
         </div>
@@ -122,21 +131,13 @@ function People() {
 
       {/* Loading State */}
       {loading ? (
-        <div className="h-screen flex flex-col justify-center items-center bg-[#0D0D0F] opacity-90 px-4">
-          <p
-            className="mb-4 font-semibold text-[#00FFFF] drop-shadow-[0_0_8px_#00FFFF]"
-            style={{ fontSize: "clamp(1.2rem, 3vw, 2rem)" }}
-          >
-            Loading Trending People...
-          </p>
-          <LoaderCircle className="animate-spin h-10 w-10 text-[#f67c02]" />
-        </div>
+        <FullScreenLoader />
       ) : (
         <div className="w-full px-4 max-w-7xl mx-auto">
           {/* Header */}
           <div className="py-8">
             <h1
-              className="text-center font-bold text-[#f67c02] drop-shadow-[0_0_8px_#f67c02]"
+              className="text-center font-bold text-[#FFC107] "
               style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)" }}
             >
               Trending People
@@ -154,7 +155,7 @@ function People() {
               </p>
               <div
                 onClick={() => window.location.reload()}
-                className="mt-4 bg-[#f67c02] text-white px-6 py-3 rounded-lg hover:bg-[#f67c02] transition-all duration-300 shadow-md hover:shadow-lg"
+                className="mt-4 bg-[#FFC107]  text-white px-6 py-3 rounded-lg hover:bg-[#FFC107]  transition-all duration-300 shadow-md hover:shadow-lg"
                 style={{ fontSize: "clamp(0.9rem, 2vw, 1rem)" }}
               >
                 Refresh Page
@@ -185,7 +186,7 @@ function People() {
                   <div
                     onClick={loadMorePeople}
                     disabled={loadingMore}
-                    className="flex items-center gap-2 bg-[#00FFFF] text-black px-6 py-3 rounded-lg hover:bg-[#FFC107] disabled:bg-[#555] disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg hover:cursor-pointer"
+                    className="flex items-center gap-2 bg-[#FFC107]  text-black px-6 py-3 rounded-lg hover:bg-[#FFC107] disabled:bg-[#555] disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg hover:cursor-pointer"
                     style={{ fontSize: "clamp(0.9rem, 2vw, 1rem)" }}
                   >
                     {loadingMore ? (

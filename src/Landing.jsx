@@ -185,10 +185,10 @@ function LandingPage() {
       <div className="flex-1 w-full px-4 sm:px-6 lg:px-8 xl:px-12 max-w-[1400px] mx-auto">
         {/* Hero Section */}
         <div className="py-10 text-center">
-          <h1 className="font-extrabold mb-4 text-[clamp(2rem,5vw,3.5rem)]">
-            Discover Movies & <span className="text-[#f67c02]">TV Shows</span>{" "}
-            <span className="text-[#00FFFF]">Instantly</span>
-          </h1>
+          <div className="font-bold mb-4 text-[clamp(2rem,3vw,3.5rem)]">
+            Discover <span className="text-[#f67c02]">Movies</span>, <span className="text-[cyan]">TV Shows</span> & <span className="text-[#FFD700]">Famous People</span>{" "}
+            Instantly
+          </div>
           <p className="text-[#B3B3B3] max-w-4xl mx-auto mb-8 text-[clamp(0.9rem,2vw,1.2rem)]">
             Browse trending titles, explore cast details, and stay updated — all
             powered by TMDB.
