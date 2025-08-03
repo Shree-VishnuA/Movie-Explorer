@@ -2,6 +2,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Navbar from "./Navbar";
 import { AppProvider } from "./AppContext";
+import ScrollToTop from "./Components/ScrollToTop";
 
 function Layout() {
   const [UserSearch, setUserSearch] = useState("");
@@ -15,6 +16,9 @@ function Layout() {
   return (
     <AppProvider>
       <div className="min-h-screen bg-[#0D0D0F] flex flex-col overflow-x-hidden text-white">
+        {/* ScrollToTop should be inside Router context */}
+        <ScrollToTop />
+
         {/* Navbar */}
         <Navbar
           onSearch={handleSearch}
@@ -28,8 +32,6 @@ function Layout() {
             <Outlet />
           </div>
         </main>
-
-        
       </div>
     </AppProvider>
   );

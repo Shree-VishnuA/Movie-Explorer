@@ -1,12 +1,12 @@
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import Movies from './Movies.jsx'
-import TVshows from './TVshows.jsx';
-import People from './People.jsx';
-import Landing from './Landing.jsx';
-import Layout from './Layout.jsx';
-import ShowCard from './Components/ShowCard.jsx';
-import SearchResults from './SearchResults.jsx';
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import Movies from "./Movies.jsx";
+import TVshows from "./TVshows.jsx";
+import People from "./People.jsx";
+import Landing from "./Landing.jsx";
+import Layout from "./Layout.jsx";
+import ShowCard from "./Components/ShowCard.jsx";
+import SearchResults from "./SearchResults.jsx";
 import { createHashRouter, RouterProvider } from "react-router-dom";
 
 const router = createHashRouter([
@@ -19,8 +19,8 @@ const router = createHashRouter([
         element: <Landing />,
       },
       {
-        path:"search/:query",
-        element:<SearchResults />,
+        path: "search/:query",
+        element: <SearchResults />,
       },
       {
         path: "/Movies",
@@ -28,7 +28,7 @@ const router = createHashRouter([
       },
       {
         path: "TVshows",
-        element:<TVshows></TVshows>,
+        element: <TVshows></TVshows>,
       },
       {
         path: "People",
@@ -38,11 +38,10 @@ const router = createHashRouter([
         path: "ShowCard",
         element: <ShowCard></ShowCard>,
       },
-      
     ],
   },
 ]);
 
-createRoot(document.getElementById('root')).render(
-    <RouterProvider router={router} />
-)
+createRoot(document.getElementById("root")).render(
+  <RouterProvider router={router} />
+);

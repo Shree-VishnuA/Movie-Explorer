@@ -279,6 +279,13 @@ const Movies = () => {
             Trending Movies
           </h1>
 
+          {/* Results Count */}
+          <div className="mb-6 flex justify-center items-center">
+            <p className="text-[clamp(0.85rem,1.5vw,1.1rem)] text-[#B3B3B3] text-center">
+              Showing {displayMovies.length} trending TV-shows
+            </p>
+          </div>
+
           {/* Filters Toggle */}
           <div className="flex justify-center mb-6 hover:cursor-pointer">
             <div

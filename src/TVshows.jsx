@@ -12,6 +12,7 @@ import {
 import ShowCard from "./Components/ShowCard";
 import { useAppContext } from "./AppContext";
 
+
 const FullScreenLoader = () => (
   <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm">
     <div className="relative w-16 h-16 sm:w-24 sm:h-24">
@@ -36,6 +37,8 @@ function TVshows() {
   const [showScrollToDown, setShowScrollToDown] = useState(false);
   const [isPersonalizerSelected, setisPersonalizerSelected] = useState(false);
   const [selectedShow, setSelectedShow] = useState(null);
+  const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -312,7 +315,7 @@ function TVshows() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 px-1 sm:px-2 md:px-0">
             {displayTVshows.map((show) => (
               <div key={show.id} className="flex justify-center w-full">
-                <ShowCard show={show} />
+                <ShowCard show={show} apiKey={apiKey}/>
               </div>
             ))}
           </div>

@@ -56,12 +56,7 @@ const ModalWrapper = ({ children, onClose }) => (
       className="relative bg-[#1a1a1a] rounded-xl shadow-xl w-full max-w-4xl sm:max-h-[90vh] max-h-[85vh] overflow-y-auto hide-scrollbar animate-fadeInScale p-4 sm:p-6"
       onClick={(e) => e.stopPropagation()}
     >
-      <button
-        onClick={onClose}
-        className="absolute top-2 right-2 sm:top-3 sm:right-3 text-white bg-black/60 px-2 py-1 sm:px-3 rounded-md hover:bg-black/80"
-      >
-        ✕
-      </button>
+      
       {children}
       <div className="flex justify-center mt-4 text-xs">Click to know more</div>
     </div>
@@ -100,6 +95,22 @@ function LandingPage() {
     }
     fetchMovies();
   }, [apiKey]);
+
+  useEffect(() => {
+  if (selectedItem) {
+    // Disable background scroll when modal is open
+    document.body.style.overflow = "hidden";
+  } else {
+    // Re-enable scroll when modal is closed
+    document.body.style.overflow = "";
+  }
+
+  // Cleanup in case component unmounts
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [selectedItem]);
+
 
   // Fetch TV Shows
   useEffect(() => {
@@ -192,7 +203,7 @@ function LandingPage() {
           </div>
           <p className="text-[#B3B3B3] max-w-4xl mx-auto mb-8 text-[clamp(0.9rem,2vw,1.2rem)]">
             Browse trending titles, explore cast details, and stay updated — all
-            powered by TMDB.
+            powered by <span className="text-blue-800">TMDB</span>.
           </p>
           <Button
             className="bg-[#f67c02] hover:bg-[#f67c02]/90 text-white px-6 sm:px-8 py-3 sm:py-4 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
