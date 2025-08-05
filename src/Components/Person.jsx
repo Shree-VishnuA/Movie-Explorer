@@ -238,7 +238,7 @@ function Person({ person = {} }) {
               initial="hidden"
               animate="visible"
               exit="hidden"
-              className="fixed z-50 inset-x-2 sm:inset-x-4 md:left-1/2 md:-translate-x-1/2 top-4 md:top-1/2 md:-translate-y-1/2 bg-gradient-to-br from-gray-900/95 to-black/95 backdrop-blur-2xl border border-white/30 rounded-xl sm:rounded-2xl w-auto md:max-w-4xl h-[calc(100vh-2rem)] md:max-h-[90vh] text-gray-100 shadow-2xl overflow-hidden"
+              className="fixed z-50 inset-x-2 sm:inset-x-4 md:left-1/2 md:-translate-x-1/2 top-14 md:top-27/50 md:-translate-y-1/2 bg-gradient-to-br from-gray-900/95 to-black/95 backdrop-blur-2xl border border-white/30 rounded-xl sm:rounded-2xl w-auto md:max-w-4xl h-[calc(100vh-2rem)] md:max-h-[90vh] text-gray-100 shadow-2xl overflow-hidden"
             >
               {/* Modal Header */}
               <div className="sticky top-0 z-10 bg-black/50 backdrop-blur-xl border-b border-white/10 p-3 sm:p-4">
