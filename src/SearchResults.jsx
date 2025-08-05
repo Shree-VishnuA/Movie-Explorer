@@ -192,7 +192,7 @@ function SearchResults() {
                   <h3 className="text-[#FFD700] mb-4" style={{ fontSize: "clamp(1.2rem, 3vw, 1.8rem)" }}>
                     Movies
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  <div className="flex flex-wrap gap-4">
                     {movies.map((movie) => (
                       <MovieCard key={movie.id} movie={movie} apiKey={apiKey} />
                     ))}
@@ -206,7 +206,7 @@ function SearchResults() {
                   <h3 className="text-[#FFD700] mb-4" style={{ fontSize: "clamp(1.2rem, 3vw, 1.8rem)" }}>
                     TV Shows
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  <div className="flex flex-wrap gap-4">
                     {tvShows.map((show) => (
                       <ShowCard key={show.id} show={show} apiKey={apiKey} />
                     ))}
@@ -220,7 +220,7 @@ function SearchResults() {
                   <h3 className="text-[#FFD700] mb-4" style={{ fontSize: "clamp(1.2rem, 3vw, 1.8rem)" }}>
                     People
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  <div className="flex flex-wrap gap-4">
                     {people.map((person) => (
                       <Person key={person.id} person={person} />
                     ))}

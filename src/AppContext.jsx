@@ -31,10 +31,10 @@ export const AppProvider = ({ children }) => {
     hasMore: false,
     loading: false,
     loadingMore: false,
-    initialized: false, // Track if data has been loaded initially
+    initialized: false,
   });
 
-  // TV Shows filters (persistent across pages)
+  // TV Shows filters
   const [tvShowFilters, setTVShowFilters] = useState({
     genre: "",
     year: "",
@@ -43,15 +43,63 @@ export const AppProvider = ({ children }) => {
     sortBy: "popularity.desc",
   });
 
+  // People state (NEW)
+  const [peopleData, setPeopleData] = useState({
+    people: [],
+    currentPage: 1,
+    totalPages: 0,
+    hasMore: false,
+    loading: false,
+    loadingMore: false,
+    initialized: false,
+  });
+
   // API Key
   const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
-  // Update TV shows data
+  // ---------------- MOVIES FUNCTIONS ----------------
+  const updateMoviesData = (newData) => {
+    setMoviesData((prev) => ({
+      ...prev,
+      ...newData,
+    }));
+  };
+
+  function resetMoviesData() {
+    setMoviesData({
+      movies: [],
+      currentPage: 1,
+      totalPages: 0,
+      hasMore: true,
+    });
+
+    fetch(
+      `https://api.themoviedb.org/3/trending/movie/day?api_key=${apiKey}&page=1`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setMoviesData({
+          movies: data.results || [],
+          currentPage: 1,
+          totalPages: data.total_pages || 0,
+          hasMore: data.total_pages > 1,
+        });
+      })
+      .catch(() => {
+        setMoviesData({
+          movies: [],
+          currentPage: 1,
+          totalPages: 0,
+          hasMore: false,
+        });
+      });
+  }
+
+  // ---------------- TV SHOW FUNCTIONS ----------------
   const updateTvShowsData = (newData) => {
     setTvShowsData((prev) => ({ ...prev, ...newData }));
   };
 
-  // Fetch trending TV shows
   const fetchTrendingTVshows = async (page = 1, isInitialLoad = false) => {
     if (isInitialLoad) {
       setTvShowsData((prev) => ({ ...prev, loading: true }));
@@ -64,9 +112,7 @@ export const AppProvider = ({ children }) => {
         `https://api.themoviedb.org/3/trending/tv/day?api_key=${apiKey}&page=${page}`
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const data = await response.json();
 
@@ -86,9 +132,7 @@ export const AppProvider = ({ children }) => {
           const newShows = data.results || [];
           const uniqueNewShows = newShows.filter(
             (newShow) =>
-              !prev.tvShows.some(
-                (existingShow) => existingShow.id === newShow.id
-              )
+              !prev.tvShows.some((existingShow) => existingShow.id === newShow.id)
           );
           return {
             ...prev,
@@ -113,7 +157,6 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Load more TV shows
   const loadMoreTVshows = () => {
     if (!tvShowsData.loadingMore && tvShowsData.hasMore) {
       const nextPage = tvShowsData.currentPage + 1;
@@ -121,7 +164,6 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Apply and Reset Filters
   const applyTVShowFilters = (newFilters) => {
     setTVShowFilters(newFilters);
   };
@@ -135,45 +177,6 @@ export const AppProvider = ({ children }) => {
       sortBy: "popularity.desc",
     });
   };
-
-  // Update Movies data (like your TV shows version)
-  const updateMoviesData = (newData) => {
-    setMoviesData((prev) => ({
-      ...prev,
-      ...newData, // Merge new data into existing state
-    }));
-  };
-
-  function resetMoviesData() {
-    setMoviesData({
-      movies: [],
-      currentPage: 1,
-      totalPages: 0,
-      hasMore: true,
-    });
-
-    // Auto-fetch trending movies after clearing
-    fetch(
-      `https://api.themoviedb.org/3/trending/movie/day?api_key=${apiKey}&page=1`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setMoviesData({
-          movies: data.results || [],
-          currentPage: 1,
-          totalPages: data.total_pages || 0,
-          hasMore: data.total_pages > 1,
-        });
-      })
-      .catch(() => {
-        setMoviesData({
-          movies: [],
-          currentPage: 1,
-          totalPages: 0,
-          hasMore: false,
-        });
-      });
-  }
 
   const getFilteredTVShows = () => {
     let shows = tvShowsData.tvShows
@@ -195,10 +198,7 @@ export const AppProvider = ({ children }) => {
           : true
       );
 
-    // If sortBy is "none", just return without sorting
-    if (tvShowFilters.sortBy === "none") {
-      return shows;
-    }
+    if (tvShowFilters.sortBy === "none") return shows;
 
     return shows.sort((a, b) => {
       switch (tvShowFilters.sortBy) {
@@ -228,6 +228,76 @@ export const AppProvider = ({ children }) => {
     });
   };
 
+  // ---------------- PEOPLE FUNCTIONS (NEW) ----------------
+  const fetchTrendingPeople = async (page = 1, isInitialLoad = false) => {
+    if (isInitialLoad) {
+      setPeopleData((prev) => ({ ...prev, loading: true }));
+    } else {
+      setPeopleData((prev) => ({ ...prev, loadingMore: true }));
+    }
+
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/trending/person/day?language=en-US&api_key=${apiKey}&page=${page}`
+      );
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data = await response.json();
+
+      if (isInitialLoad) {
+        setPeopleData((prev) => ({
+          ...prev,
+          people: data.results || [],
+          totalPages: data.total_pages || 0,
+          currentPage: 1,
+          hasMore: data.total_pages > 1,
+          loading: false,
+          loadingMore: false,
+          initialized: true,
+        }));
+      } else {
+        setPeopleData((prev) => {
+          const newPeople = data.results || [];
+          const uniqueNewPeople = newPeople.filter(
+            (newPerson) => !prev.people.some((existing) => existing.id === newPerson.id)
+          );
+          return {
+            ...prev,
+            people: [...prev.people, ...uniqueNewPeople],
+            currentPage: page,
+            hasMore: page < (data.total_pages || 0),
+            loading: false,
+            loadingMore: false,
+          };
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching people:", error);
+      setPeopleData((prev) => ({
+        ...prev,
+        people: [],
+        loading: false,
+        loadingMore: false,
+        hasMore: false,
+        initialized: true,
+      }));
+    }
+  };
+
+  const loadMorePeople = () => {
+    if (!peopleData.loadingMore && peopleData.hasMore) {
+      const nextPage = peopleData.currentPage + 1;
+      fetchTrendingPeople(nextPage, false);
+    }
+  };
+
+  const getFilteredPeople = () => {
+    return peopleData.people.filter(
+      (p) => p.popularity > 2 && p.profile_path && !p.adult && p.gender !== 0
+    );
+  };
+
   const contextValue = {
     // Movies
     moviesData,
@@ -245,8 +315,13 @@ export const AppProvider = ({ children }) => {
     resetTVShowFilters,
     updateTvShowsData,
 
-    apiKey,
+    // People (NEW)
+    peopleData,
+    fetchTrendingPeople,
+    loadMorePeople,
+    getFilteredPeople,
 
+    apiKey,
     RecentSearches,
     setRecentSearches,
   };

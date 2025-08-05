@@ -43,6 +43,7 @@ function Navbar({ onSearch, UserSearch, setUserSearch = () => {} }) {
     });
     setIsSearchFocused(false);
     setHighlightIndex(-1);
+    setIsMobileMenuOpen(false);
     onSearch(searchQuery);
   }
 

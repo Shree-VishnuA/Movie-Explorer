@@ -384,7 +384,7 @@ function ShowCard({ show = {}, apiKey }) {
 
                 {/* Tab Navigation - Mobile Optimized */}
                 <div className="border-b border-white/10 px-3 sm:px-4 md:px-6 overflow-x-auto">
-                  <div className="flex gap-4 sm:gap-6 min-w-max sm:min-w-0">
+                  <div className="flex justify-center py-1 gap-4 sm:gap-6 min-w-max sm:min-w-0">
                     {["overview", "cast", "reviews", "videos"].map((tab) => (
                       <button
                         key={tab}

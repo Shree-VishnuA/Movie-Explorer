@@ -101,29 +101,30 @@ function People() {
     });
   }
 
-  const displayPeople = people.filter(
-    (p) => p.popularity > 0 && p.profile_path && !p.adult && !p.gender == 0
+  // ✅ Apply filter once and use consistently
+  const filteredPeople = people.filter(
+    (p) => p.popularity > 2 && p.profile_path && !p.adult && p.gender !== 0
   );
 
   return (
     <div className="min-h-screen bg-[#0D0D0F] text-white relative">
-      {/* Scroll to Top div */}
+      {/* Scroll to Top Button */}
       {showScrollToTop && (
         <div
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="fixed bottom-2 right-2 sm:bottom-4 sm:right-2 bg-[#1A1A1F] text-[#FFC107]  p-3 rounded-full shadow-lg hover:bg-[#FFC107]  hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FFC107]  focus:ring-offset-2"
+          className="fixed bottom-2 right-2 sm:bottom-4 sm:right-2 bg-[#1A1A1F] text-[#FFC107] p-3 rounded-full shadow-lg hover:bg-[#FFC107] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FFC107] focus:ring-offset-2"
         >
           <ChevronUp className="h-5 w-5" />
         </div>
       )}
 
-      {/* Scroll to Bottom div */}
+      {/* Scroll to Bottom Button */}
       {showScrollToDown && (
         <div
           onClick={scrollToBottom}
           aria-label="Scroll to bottom"
-          className="fixed top-18 right-2 sm:top-18 sm:right-2 bg-[#1A1A1F] text-[#FFC107]  p-3 rounded-full shadow-lg hover:bg-[#FFC107]  hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:ring-offset-2"
+          className="fixed top-18 right-2 sm:top-18 sm:right-2 bg-[#1A1A1F] text-[#FFC107] p-3 rounded-full shadow-lg hover:bg-[#FFC107] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:ring-offset-2"
         >
           <ChevronDown className="h-5 w-5" />
         </div>
@@ -137,7 +138,7 @@ function People() {
           {/* Header */}
           <div className="py-8">
             <h1
-              className="text-center font-bold text-[#FFC107] "
+              className="text-center font-bold text-[#FFC107]"
               style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)" }}
             >
               Trending People
@@ -145,7 +146,7 @@ function People() {
           </div>
 
           {/* Empty State */}
-          {displayPeople.length === 0 ? (
+          {filteredPeople.length === 0 ? (
             <div className="text-center py-16">
               <p
                 className="text-[#B3B3B3]"
@@ -155,7 +156,7 @@ function People() {
               </p>
               <div
                 onClick={() => window.location.reload()}
-                className="mt-4 bg-[#FFC107]  text-white px-6 py-3 rounded-lg hover:bg-[#FFC107]  transition-all duration-300 shadow-md hover:shadow-lg"
+                className="mt-4 bg-[#FFC107] text-white px-6 py-3 rounded-lg hover:bg-[#FFC107] transition-all duration-300 shadow-md hover:shadow-lg"
                 style={{ fontSize: "clamp(0.9rem, 2vw, 1rem)" }}
               >
                 Refresh Page
@@ -168,25 +169,23 @@ function People() {
                 className="text-center text-[#B3B3B3] mb-6"
                 style={{ fontSize: "clamp(0.8rem, 2vw, 1rem)" }}
               >
-                Showing {displayPeople.length} trending people
+                Showing {filteredPeople.length} trending people
               </p>
 
               {/* People Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 px-1 sm:px-2 md:px-0">
-                {displayPeople
-                  .filter((person) => person.popularity > 2)
-                  .map((person) => (
-                    <Person key={person.id} person={person} />
-                  ))}
+                {filteredPeople.map((person) => (
+                  <Person key={person.id} person={person} />
+                ))}
               </div>
 
-              {/* Load More div */}
+              {/* Load More Button */}
               {hasMore && (
                 <div className="flex justify-center mt-10">
                   <div
                     onClick={loadMorePeople}
                     disabled={loadingMore}
-                    className="flex items-center gap-2 bg-[#FFC107]  text-black px-6 py-3 rounded-lg hover:bg-[#FFC107] disabled:bg-[#555] disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg hover:cursor-pointer"
+                    className="flex items-center gap-2 bg-[#FFC107] text-black px-6 py-3 rounded-lg hover:bg-[#FFC107] disabled:bg-[#555] disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg hover:cursor-pointer"
                     style={{ fontSize: "clamp(0.9rem, 2vw, 1rem)" }}
                   >
                     {loadingMore ? (
@@ -205,7 +204,7 @@ function People() {
               )}
 
               {/* End Message */}
-              {!hasMore && displayPeople.length > 20 && (
+              {!hasMore && filteredPeople.length > 20 && (
                 <p
                   className="text-center mt-6 text-[#888]"
                   style={{ fontSize: "clamp(0.8rem, 2vw, 1rem)" }}
