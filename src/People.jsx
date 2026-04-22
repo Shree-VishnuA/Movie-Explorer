@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { LoaderCircle, Plus, ChevronUp, ChevronDown } from "lucide-react";
 
 const FullScreenLoader = () => (
-  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-overlay backdrop-blur-sm">
     <div className="relative w-16 h-16 sm:w-24 sm:h-24">
-      <div className="absolute inset-0 rounded-full border-4 sm:border-6 border-t-[#f67c02] border-b-[#00FFFF] border-l-transparent border-r-transparent animate-spin-slow"></div>
-      <div className="absolute inset-4 sm:inset-6 bg-[#f67c02] rounded-full animate-pulse-glow"></div>
+      <div className="absolute inset-0 rounded-full border-4 sm:border-6 border-t-accent border-b-accent-secondary border-l-transparent border-r-transparent animate-spin-slow"></div>
+      <div className="absolute inset-4 sm:inset-6 bg-accent rounded-full animate-pulse-glow"></div>
     </div>
   </div>
 );
@@ -107,13 +107,13 @@ function People() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0D0D0F] text-white relative">
+    <div className="min-h-screen bg-background text-text-primary relative">
       {/* Scroll to Top Button */}
       {showScrollToTop && (
         <div
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="fixed bottom-2 right-2 sm:bottom-4 sm:right-2 bg-[#1A1A1F] text-[#FFC107] p-3 rounded-full shadow-lg hover:bg-[#FFC107] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FFC107] focus:ring-offset-2"
+          className="fixed bottom-2 right-2 sm:bottom-4 sm:right-2 bg-surface text-accent p-3 rounded-full shadow-lg hover:bg-accent hover:text-accent-text transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
         >
           <ChevronUp className="h-5 w-5" />
         </div>
@@ -124,7 +124,7 @@ function People() {
         <div
           onClick={scrollToBottom}
           aria-label="Scroll to bottom"
-          className="fixed top-18 right-2 sm:top-18 sm:right-2 bg-[#1A1A1F] text-[#FFC107] p-3 rounded-full shadow-lg hover:bg-[#FFC107] hover:text-white transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00FFFF] focus:ring-offset-2"
+          className="fixed top-18 right-2 sm:top-18 sm:right-2 bg-surface text-accent p-3 rounded-full shadow-lg hover:bg-accent hover:text-accent-text transition-all duration-300 transform hover:scale-110 z-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent-secondary focus:ring-offset-2"
         >
           <ChevronDown className="h-5 w-5" />
         </div>
@@ -138,7 +138,7 @@ function People() {
           {/* Header */}
           <div className="py-8">
             <h1
-              className="text-center font-bold text-[#FFC107]"
+              className="text-center font-bold text-accent"
               style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)" }}
             >
               Trending People
@@ -149,14 +149,14 @@ function People() {
           {filteredPeople.length === 0 ? (
             <div className="text-center py-16">
               <p
-                className="text-[#B3B3B3]"
+                className="text-text-secondary"
                 style={{ fontSize: "clamp(1rem, 2.5vw, 1.25rem)" }}
               >
                 No trending people available at the moment.
               </p>
               <div
                 onClick={() => window.location.reload()}
-                className="mt-4 bg-[#FFC107] text-white px-6 py-3 rounded-lg hover:bg-[#FFC107] transition-all duration-300 shadow-md hover:shadow-lg"
+                className="mt-4 bg-accent text-accent-text px-6 py-3 rounded-lg hover:bg-accent-hover transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer"
                 style={{ fontSize: "clamp(0.9rem, 2vw, 1rem)" }}
               >
                 Refresh Page
@@ -166,7 +166,7 @@ function People() {
             <div className="pb-16">
               {/* People Count */}
               <p
-                className="text-center text-[#B3B3B3] mb-6"
+                className="text-center text-text-secondary mb-6"
                 style={{ fontSize: "clamp(0.8rem, 2vw, 1rem)" }}
               >
                 Showing {filteredPeople.length} trending people
@@ -185,12 +185,12 @@ function People() {
                   <div
                     onClick={loadMorePeople}
                     disabled={loadingMore}
-                    className="flex items-center gap-2 bg-[#FFC107] text-black px-6 py-3 rounded-lg hover:bg-[#FFC107] disabled:bg-[#555] disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg hover:cursor-pointer"
+                    className="flex items-center gap-2 bg-accent text-accent-text px-6 py-3 rounded-lg hover:bg-accent-hover disabled:bg-surface-disabled disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg hover:cursor-pointer"
                     style={{ fontSize: "clamp(0.9rem, 2vw, 1rem)" }}
                   >
                     {loadingMore ? (
                       <>
-                        <LoaderCircle className="h-5 w-5 animate-spin text-[#f67c02]" />
+                        <LoaderCircle className="h-5 w-5 animate-spin text-accent" />
                         Loading...
                       </>
                     ) : (
@@ -206,10 +206,10 @@ function People() {
               {/* End Message */}
               {!hasMore && filteredPeople.length > 20 && (
                 <p
-                  className="text-center mt-6 text-[#888]"
+                  className="text-center mt-6 text-text-muted"
                   style={{ fontSize: "clamp(0.8rem, 2vw, 1rem)" }}
                 >
-                  You’ve reached the end of trending people.
+                  You've reached the end of trending people.
                 </p>
               )}
             </div>

@@ -4,6 +4,7 @@ import { useAppContext } from "./AppContext";
 import MovieCard from "./Components/MovieCard";
 import ShowCard from "./Components/ShowCard";
 import Person from "./Components/Person";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Film,
   Facebook,
@@ -37,28 +38,54 @@ const StarIcon = ({ className }) => (
 );
 
 // --- Full-Screen Loader (Responsive) ---
-const FullScreenLoader = () => (
-  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-    <div className="relative w-16 h-16 sm:w-24 sm:h-24">
-      <div className="absolute inset-0 rounded-full border-4 sm:border-6 border-t-[#f67c02] border-b-[#00FFFF] border-l-transparent border-r-transparent animate-spin-slow"></div>
-      <div className="absolute inset-4 sm:inset-6 bg-[#f67c02] rounded-full animate-pulse-glow"></div>
-    </div>
-  </div>
+const FullScreenLoader = ({ loading }) => (
+  <AnimatePresence>
+    {loading && (
+      <motion.div
+        initial={{ opacity: 0, scale: 0, borderRadius: 9999 }}
+        animate={{ opacity: 1, scale: 1, borderRadius: 0 }}
+        exit={{ opacity: 0, scale: 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 z-[999] flex items-center justify-center backdrop-blur-lg"
+        style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
+      >
+        <div className="relative w-16 h-16 sm:w-24 sm:h-24">
+          <div
+            className="absolute inset-0 rounded-full border-4 sm:border-6 border-l-transparent border-r-transparent animate-spin-slow"
+            style={{
+              borderTopColor: "var(--primary)",
+              borderBottomColor: "var(--secondary)",
+            }}
+          ></div>
+          <div
+            className="absolute inset-4 sm:inset-6 rounded-full animate-pulse-glow"
+            style={{ backgroundColor: "var(--primary)" }}
+          ></div>
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
 );
 
 // --- Modal Wrapper (Responsive) ---
 const ModalWrapper = ({ children, onClose }) => (
   <div
-    className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 sm:px-6"
+    className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm px-4 sm:px-6"
+    style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
     onClick={onClose}
   >
     <div
-      className="relative bg-[#1a1a1a] rounded-xl shadow-xl w-full max-w-4xl sm:max-h-[90vh] max-h-[85vh] overflow-y-auto hide-scrollbar animate-fadeInScale p-4 sm:p-6"
+      className="relative rounded-xl shadow-xl w-full max-w-4xl sm:max-h-[90vh] max-h-[85vh] overflow-y-auto hide-scrollbar animate-fadeInScale p-4 sm:p-6"
+      style={{
+        backgroundColor: "var(--bg)",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+      }}
       onClick={(e) => e.stopPropagation()}
     >
-      
       {children}
-      <div className="flex justify-center mt-4 text-xs">Click to know more</div>
+      <div className="flex justify-center mt-4 text-xs text-theme">
+        Click to know more
+      </div>
     </div>
   </div>
 );
@@ -73,93 +100,90 @@ function LandingPage() {
 
   const { apiKey } = useAppContext();
 
-  // Fetch Movies
-  useEffect(() => {
-    async function fetchMovies() {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/movie/top_rated?api_key=${apiKey}&language=en-US&page=1`
-      );
-      const data = await res.json();
-      setMovies(
-        data.results
-          .filter((m) => m.poster_path)
-          .slice(0, 5)
-          .map((m) => ({
-            id: m.id,
-            title: m.title,
-            poster: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
-            rating: m.vote_average.toFixed(1),
-            year: m.release_date?.split("-")[0] || "N/A",
-          }))
-      );
-    }
-    fetchMovies();
-  }, [apiKey]);
-
-  useEffect(() => {
-  if (selectedItem) {
-    // Disable background scroll when modal is open
-    document.body.style.overflow = "hidden";
-  } else {
-    // Re-enable scroll when modal is closed
-    document.body.style.overflow = "";
+  async function fetchTv() {
+    const res = await fetch(
+      `https://api.themoviedb.org/3/tv/top_rated?api_key=${apiKey}&language=en-US&page=1`
+    );
+    const data = await res.json();
+    setTvShows(
+      data.results
+        .filter((s) => s.poster_path)
+        .slice(0, 5)
+        .map((s) => ({
+          id: s.id,
+          title: s.name,
+          poster: `https://image.tmdb.org/t/p/w500${s.poster_path}`,
+          rating: s.vote_average.toFixed(1),
+          year: s.first_air_date?.split("-")[0] || "N/A",
+        }))
+    );
   }
 
-  // Cleanup in case component unmounts
-  return () => {
-    document.body.style.overflow = "";
-  };
-}, [selectedItem]);
+  async function fetchMovies() {
+    const res = await fetch(
+      `https://api.themoviedb.org/3/movie/top_rated?api_key=${apiKey}&language=en-US&page=1`
+    );
+    const data = await res.json();
+    setMovies(
+      data.results
+        .filter((m) => m.poster_path)
+        .slice(0, 5)
+        .map((m) => ({
+          id: m.id,
+          title: m.title,
+          poster: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
+          rating: m.vote_average.toFixed(1),
+          year: m.release_date?.split("-")[0] || "N/A",
+        }))
+    );
+  }
 
+  async function fetchPeople() {
+    const res = await fetch(
+      `https://api.themoviedb.org/3/person/popular?api_key=${apiKey}&language=en-US&page=1`
+    );
+    const data = await res.json();
+    setPeople(
+      data.results
+        .filter((p) => p.profile_path)
+        .slice(0, 5)
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          profile: `https://image.tmdb.org/t/p/w500${p.profile_path}`,
+          knownFor:
+            p.known_for
+              ?.map((k) => k.title || k.name)
+              .slice(0, 2)
+              .join(", ") || "Actor",
+        }))
+    );
+  }
 
-  // Fetch TV Shows
+  // Fetch Movies
   useEffect(() => {
-    async function fetchTv() {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/tv/top_rated?api_key=${apiKey}&language=en-US&page=1`
-      );
-      const data = await res.json();
-      setTvShows(
-        data.results
-          .filter((s) => s.poster_path)
-          .slice(0, 5)
-          .map((s) => ({
-            id: s.id,
-            title: s.name,
-            poster: `https://image.tmdb.org/t/p/w500${s.poster_path}`,
-            rating: s.vote_average.toFixed(1),
-            year: s.first_air_date?.split("-")[0] || "N/A",
-          }))
-      );
+    async function fetchAll() {
+      setLoading(true);
+      await Promise.all([fetchMovies(), fetchPeople(), fetchTv()]);
+      setLoading(false);
     }
-    fetchTv();
+    fetchAll();
   }, [apiKey]);
 
-  // Fetch People
   useEffect(() => {
-    async function fetchPeople() {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/person/popular?api_key=${apiKey}&language=en-US&page=1`
-      );
-      const data = await res.json();
-      setPeople(
-        data.results
-          .filter((p) => p.profile_path)
-          .slice(0, 5)
-          .map((p) => ({
-            id: p.id,
-            name: p.name,
-            profile: `https://image.tmdb.org/t/p/w500${p.profile_path}`,
-            knownFor:
-              p.known_for
-                ?.map((k) => k.title || k.name)
-                .slice(0, 2)
-                .join(", ") || "Actor",
-          }))
-      );
+    if (selectedItem) {
+      // Disable background scroll when modal is open
+      document.body.style.overflow = "hidden";
+    } else {
+      // Re-enable scroll when modal is closed
+      document.body.style.overflow = "";
     }
-    fetchPeople();
-  }, [apiKey]);
+
+    // Cleanup in case component unmounts
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedItem]);
 
   // Fetch Item Details (Loader enabled)
   const fetchItemDetails = async (id, type) => {
@@ -190,23 +214,38 @@ function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0D0F] text-white flex flex-col">
-      {loading && <FullScreenLoader />}
+    <div className="min-h-screen bg-theme text-theme flex flex-col">
+      <FullScreenLoader loading={loading} />
 
       <div className="flex-1 w-full px-4 sm:px-6 lg:px-8 xl:px-12 max-w-[1400px] mx-auto">
         {/* Hero Section */}
         <div className="py-10 text-center">
           <div className="font-bold mb-4 text-[clamp(2rem,3vw,3.5rem)]">
-            Discover <span className="text-[#f67c02]">Movies</span>,{" "}
-            <span className="text-[cyan]">TV Shows</span> &{" "}
-            <span className="text-[#FFD700]">Famous People</span> Instantly
+            Discover <span className="text-primary">Movies</span>,{" "}
+            <span className="text-secondary">TV Shows</span> &{" "}
+            <span className="text-highlight">Famous People</span> Instantly
           </div>
-          <p className="text-[#B3B3B3] max-w-4xl mx-auto mb-8 text-[clamp(0.9rem,2vw,1.2rem)]">
+          <p
+            className="max-w-4xl mx-auto mb-8 text-[clamp(0.9rem,2vw,1.2rem)]"
+            style={{ color: "rgba(var(--text-rgb, 255, 255, 255), 0.7)" }}
+          >
             Browse trending titles, explore cast details, and stay updated — all
-            powered by <span className="text-blue-800">TMDB</span>.
+            powered by <span style={{ color: "var(--secondary)" }}>TMDB</span>.
           </p>
           <Button
-            className="bg-[#f67c02] hover:bg-[#f67c02]/90 text-white px-6 sm:px-8 py-3 sm:py-4 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
+            className="text-white px-6 sm:px-8 py-3 sm:py-4 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+            style={{
+              backgroundColor: "var(--primary)",
+              border: "1px solid var(--primary)",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = "var(--primary)";
+              e.target.style.opacity = "0.9";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = "var(--primary)";
+              e.target.style.opacity = "1";
+            }}
             onClick={() => window.scrollTo({ top: 280, behavior: "smooth" })}
           >
             Explore Now
@@ -261,7 +300,6 @@ function LandingPage() {
 }
 
 // --- Section (Responsive with hint text) ---
-// --- Section (with View More button) ---
 const Section = ({ title, items, type, onSelect, isPerson, hint }) => {
   const getLink = () => {
     if (type === "movie") return "/movies";
@@ -274,12 +312,12 @@ const Section = ({ title, items, type, onSelect, isPerson, hint }) => {
     <div className="pb-10">
       {/* Heading + View More */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6">
-        <h2 className="font-bold text-[clamp(1.5rem,3vw,2rem)] text-center sm:text-left">
+        <h2 className="font-bold text-[clamp(1.5rem,3vw,2rem)] text-center sm:text-left text-theme">
           {title}
         </h2>
         <Link
           to={getLink()}
-          className="text-sm text-[#f67c02] hover:text-[#FFD700] mt-2 sm:mt-0 text-center sm:text-right transition-colors duration-200"
+          className="text-sm text-primary hover:text-highlight mt-2 sm:mt-0 text-center sm:text-right transition-colors duration-200"
         >
           View More →
         </Link>
@@ -312,7 +350,7 @@ const Section = ({ title, items, type, onSelect, isPerson, hint }) => {
                     <div className="flex justify-between items-center text-sm text-gray-300">
                       <span>{item.year}</span>
                       <span className="flex items-center gap-1">
-                        <StarIcon className="w-3 h-3 text-[#FFD700]" />
+                        <StarIcon className="w-3 h-3 text-highlight" />
                         {item.rating}
                       </span>
                     </div>
@@ -328,59 +366,140 @@ const Section = ({ title, items, type, onSelect, isPerson, hint }) => {
           </div>
         ))}
       </div>
-      <p className="text-xs italic text-gray-400 mt-3 text-center">{hint}</p>
+      <p
+        className="text-xs italic mt-3 text-center"
+        style={{ color: "rgba(var(--text-rgb, 255, 255, 255), 0.6)" }}
+      >
+        {hint}
+      </p>
     </div>
   );
 };
 
-// --- Footer (Responsive) ---
 // --- Footer ---
 const Footer = () => (
-  <footer className="bg-black-900 py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-800">
+  <footer
+    className="py-12 px-4 sm:px-6 lg:px-8"
+    style={{
+      backgroundColor: "var(--bg)",
+      borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+    }}
+  >
     <div className="max-w-7xl mx-auto flex flex-wrap justify-evenly gap-8 text-center sm:text-left">
       {/* Logo and About */}
       <div className="flex-1 min-w-[250px]">
         <div className="flex items-center justify-center sm:justify-start space-x-2 mb-4">
           <div className="relative">
             {/* Main Logo Icon */}
-            <Film className="w-7 h-7 sm:w-8 sm:h-8 text-[#f67c02] drop-shadow-[0_0_6px_#f67c02]" />
+            <Film
+              className="w-7 h-7 sm:w-8 sm:h-8 text-primary"
+              style={{ filter: "drop-shadow(0 0 6px var(--primary))" }}
+            />
             {/* Search Icon Overlay */}
-            <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00FFFF] absolute -bottom-1 -right-1 bg-[#1A1A1F] rounded-full p-0.5 drop-shadow-[0_0_4px_#00FFFF]" />
+            <Search
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-secondary absolute -bottom-1 -right-1 rounded-full p-0.5"
+              style={{
+                backgroundColor: "var(--bg)",
+                filter: "drop-shadow(0 0 4px var(--secondary))",
+              }}
+            />
           </div>
-          <span className="text-xl sm:text-2xl font-bold">
-            Movie<span className="text-orange-500">Hunt</span>
+          <span className="text-xl sm:text-2xl font-bold text-theme">
+            Movie<span className="text-primary">Hunt</span>
           </span>
         </div>
-        <p className="text-gray-400 text-sm sm:text-base mb-4 max-w-sm mx-auto sm:mx-0">
+        <p
+          className="text-sm sm:text-base mb-4 max-w-sm mx-auto sm:mx-0"
+          style={{ color: "rgba(var(--text-rgb, 255, 255, 255), 0.7)" }}
+        >
           Your ultimate destination for discovering Movies, TV shows and People.
           Powered by TMDB.
         </p>
         <div className="flex justify-center sm:justify-start space-x-4">
-          <Facebook className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 hover:text-orange-500 cursor-pointer" />
-          <Twitter className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 hover:text-orange-500 cursor-pointer" />
-          <Instagram className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 hover:text-orange-500 cursor-pointer" />
-          <Youtube className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 hover:text-orange-500 cursor-pointer" />
+          <Facebook
+            className="h-5 w-5 sm:h-6 sm:w-6 cursor-pointer transition-colors duration-200"
+            style={{ color: "rgba(var(--text-rgb, 255, 255, 255), 0.7)" }}
+            onMouseEnter={(e) => (e.target.style.color = "var(--primary)")}
+            onMouseLeave={(e) =>
+              (e.target.style.color =
+                "rgba(var(--text-rgb, 255, 255, 255), 0.7)")
+            }
+          />
+          <Twitter
+            className="h-5 w-5 sm:h-6 sm:w-6 cursor-pointer transition-colors duration-200"
+            style={{ color: "rgba(var(--text-rgb, 255, 255, 255), 0.7)" }}
+            onMouseEnter={(e) => (e.target.style.color = "var(--primary)")}
+            onMouseLeave={(e) =>
+              (e.target.style.color =
+                "rgba(var(--text-rgb, 255, 255, 255), 0.7)")
+            }
+          />
+          <Instagram
+            className="h-5 w-5 sm:h-6 sm:w-6 cursor-pointer transition-colors duration-200"
+            style={{ color: "rgba(var(--text-rgb, 255, 255, 255), 0.7)" }}
+            onMouseEnter={(e) => (e.target.style.color = "var(--primary)")}
+            onMouseLeave={(e) =>
+              (e.target.style.color =
+                "rgba(var(--text-rgb, 255, 255, 255), 0.7)")
+            }
+          />
+          <Youtube
+            className="h-5 w-5 sm:h-6 sm:w-6 cursor-pointer transition-colors duration-200"
+            style={{ color: "rgba(var(--text-rgb, 255, 255, 255), 0.7)" }}
+            onMouseEnter={(e) => (e.target.style.color = "var(--primary)")}
+            onMouseLeave={(e) =>
+              (e.target.style.color =
+                "rgba(var(--text-rgb, 255, 255, 255), 0.7)")
+            }
+          />
         </div>
       </div>
 
       {/* Quick Links */}
       <div className="flex-1 min-w-[150px] text-center sm:text-left">
-        <h3 className="text-white font-semibold mb-4 text-base sm:text-lg">
+        <h3 className="text-theme font-semibold mb-4 text-base sm:text-lg">
           Quick Links
         </h3>
-        <ul className="space-y-2 text-gray-400 text-sm sm:text-base ">
+        <ul className="space-y-2 text-sm sm:text-base">
           <li>
-            <Link to="/movies" className="hover:text-orange-500">
+            <Link
+              to="/movies"
+              className="transition-colors duration-200"
+              style={{ color: "rgba(var(--text-rgb, 255, 255, 255), 0.7)" }}
+              onMouseEnter={(e) => (e.target.style.color = "var(--primary)")}
+              onMouseLeave={(e) =>
+                (e.target.style.color =
+                  "rgba(var(--text-rgb, 255, 255, 255), 0.7)")
+              }
+            >
               Movies
             </Link>
           </li>
           <li>
-            <Link to="/tvshows" className="hover:text-orange-500">
+            <Link
+              to="/tvshows"
+              className="transition-colors duration-200"
+              style={{ color: "rgba(var(--text-rgb, 255, 255, 255), 0.7)" }}
+              onMouseEnter={(e) => (e.target.style.color = "var(--primary)")}
+              onMouseLeave={(e) =>
+                (e.target.style.color =
+                  "rgba(var(--text-rgb, 255, 255, 255), 0.7)")
+              }
+            >
               TV Shows
             </Link>
           </li>
           <li>
-            <Link to="/people" className="hover:text-orange-500">
+            <Link
+              to="/people"
+              className="transition-colors duration-200"
+              style={{ color: "rgba(var(--text-rgb, 255, 255, 255), 0.7)" }}
+              onMouseEnter={(e) => (e.target.style.color = "var(--primary)")}
+              onMouseLeave={(e) =>
+                (e.target.style.color =
+                  "rgba(var(--text-rgb, 255, 255, 255), 0.7)")
+              }
+            >
               People
             </Link>
           </li>
@@ -389,7 +508,13 @@ const Footer = () => (
     </div>
 
     {/* Bottom Bar */}
-    <div className="border-t border-gray-800 mt-8 pt-4 text-center text-gray-500 text-xs sm:text-sm">
+    <div
+      className="mt-8 pt-4 text-center text-xs sm:text-sm"
+      style={{
+        borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+        color: "rgba(var(--text-rgb, 255, 255, 255), 0.5)",
+      }}
+    >
       © {new Date().getFullYear()} MovieHunt. All rights reserved. Powered by
       TMDB API.
     </div>

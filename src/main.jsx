@@ -19,7 +19,7 @@ const router = createHashRouter([
         element: <Landing />,
       },
       {
-        path: "search/:query",
+        path: "/search/:query",
         element: <SearchResults />,
       },
       {
@@ -27,15 +27,15 @@ const router = createHashRouter([
         element: <Movies></Movies>,
       },
       {
-        path: "TVshows",
+        path: "/TVshows",
         element: <TVshows></TVshows>,
       },
       {
-        path: "People",
+        path: "/People",
         element: <People></People>,
       },
       {
-        path: "ShowCard",
+        path: "/ShowCard",
         element: <ShowCard></ShowCard>,
       },
     ],

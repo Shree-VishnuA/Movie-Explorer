@@ -165,7 +165,8 @@ const Movies = () => {
       if (filters.year) url += `&primary_release_year=${filters.year}`;
       if (filters.rating) url += `&vote_average.gte=${filters.rating}`;
       if (filters.sortBy) url += `&sort_by=${filters.sortBy}`;
-      if (filters.language) url += `&with_original_language=${filters.language}`;
+      if (filters.language)
+        url += `&with_original_language=${filters.language}`;
       if (filters.region) url += `&region=${filters.region}`;
 
       const response = await fetch(url);
@@ -210,7 +211,8 @@ const Movies = () => {
           if (filters.year) url += `&primary_release_year=${filters.year}`;
           if (filters.rating) url += `&vote_average.gte=${filters.rating}`;
           if (filters.sortBy) url += `&sort_by=${filters.sortBy}`;
-          if (filters.language) url += `&with_original_language=${filters.language}`;
+          if (filters.language)
+            url += `&with_original_language=${filters.language}`;
           if (filters.region) url += `&region=${filters.region}`;
         }
 
@@ -252,12 +254,25 @@ const Movies = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0D0D0F] text-white relative">
+    <div className="min-h-screen bg-theme text-theme relative">
       {/* Scroll divs */}
       {showScrollToTop && (
         <div
           onClick={scrollToTop}
-          className="fixed bottom-2 right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-lg hover:bg-[#e56700] cursor-pointer z-50"
+          className="fixed bottom-2 right-2 p-3 rounded-full shadow-lg cursor-pointer z-50 transition-all duration-300"
+          style={{
+            backgroundColor: "var(--bg)",
+            color: "var(--secondary)",
+            border: "1px solid var(--secondary)",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = "var(--primary)";
+            e.target.style.color = "var(--text)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = "var(--bg)";
+            e.target.style.color = "var(--secondary)";
+          }}
         >
           <ChevronUp />
         </div>
@@ -265,23 +280,39 @@ const Movies = () => {
       {showScrollToDown && (
         <div
           onClick={scrollToBottom}
-          className="fixed top-18 right-2 bg-[#1A1A1F] text-[#00FFFF] p-3 rounded-full shadow-lg hover:bg-[#e56700] cursor-pointer z-50"
+          className="fixed top-18 right-2 p-3 rounded-full shadow-lg cursor-pointer z-50 transition-all duration-300"
+          style={{
+            backgroundColor: "var(--bg)",
+            color: "var(--secondary)",
+            border: "1px solid var(--secondary)",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = "var(--primary)";
+            e.target.style.color = "var(--text)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = "var(--bg)";
+            e.target.style.color = "var(--secondary)";
+          }}
         >
           <ChevronDown />
         </div>
       )}
 
       {loading ? (
-        <FullScreenLoader /> // <-- Replaced the old loader here
+        <FullScreenLoader />
       ) : (
         <div className="max-w-[1400px] mx-auto px-4">
-          <h1 className="text-center font-bold text-[#f67c02] text-3xl my-6">
+          <h1 className="text-center font-bold text-primary text-3xl my-6">
             Trending Movies
           </h1>
 
           {/* Results Count */}
           <div className="mb-6 flex justify-center items-center">
-            <p className="text-[clamp(0.85rem,1.5vw,1.1rem)] text-[#B3B3B3] text-center">
+            <p
+              className="text-[clamp(0.85rem,1.5vw,1.1rem)] text-center"
+              style={{ color: "rgba(var(--text-rgb), 0.7)" }}
+            >
               Showing {displayMovies.length} trending TV-shows
             </p>
           </div>
@@ -290,9 +321,29 @@ const Movies = () => {
           <div className="flex justify-center mb-6 hover:cursor-pointer">
             <div
               onClick={toggleFilters}
-              className={`px-6 py-3 rounded-lg text-black font-semibold flex items-center gap-2 transition-all ${
-                isPersonalizerSelected ? "bg-[#333]" : "bg-[#f67c02] hover:bg-[#e56700]"
+              className={`px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all duration-300 ${
+                isPersonalizerSelected ? "text-theme" : "text-white"
               }`}
+              style={{
+                backgroundColor: isPersonalizerSelected
+                  ? "rgba(var(--text-rgb), 0.2)"
+                  : "var(--primary)",
+                border: `1px solid ${
+                  isPersonalizerSelected ? "var(--text)" : "var(--primary)"
+                }`,
+              }}
+              onMouseEnter={(e) => {
+                if (!isPersonalizerSelected) {
+                  e.target.style.backgroundColor = "var(--secondary)";
+                  e.target.style.borderColor = "var(--secondary)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isPersonalizerSelected) {
+                  e.target.style.backgroundColor = "var(--primary)";
+                  e.target.style.borderColor = "var(--primary)";
+                }
+              }}
             >
               <Filter size={18} />{" "}
               {isPersonalizerSelected ? "Hide Filters" : "Show Filters"}
@@ -301,22 +352,44 @@ const Movies = () => {
 
           {/* Filters */}
           {isPersonalizerSelected && (
-            <div className="bg-[#1A1A1F] p-6 rounded-lg shadow-lg border border-[#333] mb-8">
+            <div
+              className="p-6 rounded-lg shadow-lg mb-8"
+              style={{
+                backgroundColor: "var(--bg)",
+                border: "1px solid rgba(var(--text-rgb), 0.2)",
+              }}
+            >
               <div className="flex justify-between mb-6">
-                <h3 className="text-white text-lg font-semibold">
+                <h3 className="text-theme text-lg font-semibold">
                   Filter Movies
                 </h3>
                 <X
-                  className="cursor-pointer text-[#B3B3B3]"
+                  className="cursor-pointer transition-colors duration-300"
+                  style={{ color: "rgba(var(--text-rgb), 0.7)" }}
                   onClick={toggleFilters}
+                  onMouseEnter={(e) =>
+                    (e.target.style.color = "var(--primary)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.color = "rgba(var(--text-rgb), 0.7)")
+                  }
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-6">
                 <div>
-                  <label className="block text-[#f67c02] mb-2">Genre</label>
+                  <label className="block text-primary mb-2">Genre</label>
                   <select
-                    className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]"
+                    className="w-full p-2 rounded transition-all duration-300 focus:outline-none focus:ring-2"
+                    style={{
+                      backgroundColor: "var(--bg)",
+                      color: "var(--text)",
+                      border: "1px solid rgba(var(--text-rgb), 0.3)",
+                    }}
+                    onFocus={(e) =>
+                      (e.target.style.boxShadow = "0 0 0 2px var(--secondary)")
+                    }
+                    onBlur={(e) => (e.target.style.boxShadow = "none")}
                     onChange={(e) =>
                       handleFilterChange("genre", e.target.value)
                     }
@@ -332,11 +405,20 @@ const Movies = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[#f67c02] mb-2">
+                  <label className="block text-primary mb-2">
                     Release Year
                   </label>
                   <select
-                    className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]"
+                    className="w-full p-2 rounded transition-all duration-300 focus:outline-none focus:ring-2"
+                    style={{
+                      backgroundColor: "var(--bg)",
+                      color: "var(--text)",
+                      border: "1px solid rgba(var(--text-rgb), 0.3)",
+                    }}
+                    onFocus={(e) =>
+                      (e.target.style.boxShadow = "0 0 0 2px var(--secondary)")
+                    }
+                    onBlur={(e) => (e.target.style.boxShadow = "none")}
                     onChange={(e) => handleFilterChange("year", e.target.value)}
                     value={filters.year}
                   >
@@ -352,11 +434,20 @@ const Movies = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[#f67c02] mb-2">
+                  <label className="block text-primary mb-2">
                     Minimum Rating
                   </label>
                   <select
-                    className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]"
+                    className="w-full p-2 rounded transition-all duration-300 focus:outline-none focus:ring-2"
+                    style={{
+                      backgroundColor: "var(--bg)",
+                      color: "var(--text)",
+                      border: "1px solid rgba(var(--text-rgb), 0.3)",
+                    }}
+                    onFocus={(e) =>
+                      (e.target.style.boxShadow = "0 0 0 2px var(--secondary)")
+                    }
+                    onBlur={(e) => (e.target.style.boxShadow = "none")}
                     onChange={(e) =>
                       handleFilterChange("rating", e.target.value)
                     }
@@ -372,9 +463,18 @@ const Movies = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[#f67c02] mb-2">Language</label>
+                  <label className="block text-primary mb-2">Language</label>
                   <select
-                    className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]"
+                    className="w-full p-2 rounded transition-all duration-300 focus:outline-none focus:ring-2"
+                    style={{
+                      backgroundColor: "var(--bg)",
+                      color: "var(--text)",
+                      border: "1px solid rgba(var(--text-rgb), 0.3)",
+                    }}
+                    onFocus={(e) =>
+                      (e.target.style.boxShadow = "0 0 0 2px var(--secondary)")
+                    }
+                    onBlur={(e) => (e.target.style.boxShadow = "none")}
                     onChange={(e) =>
                       handleFilterChange("language", e.target.value)
                     }
@@ -390,9 +490,18 @@ const Movies = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[#f67c02] mb-2">Region</label>
+                  <label className="block text-primary mb-2">Region</label>
                   <select
-                    className="w-full p-2 rounded bg-[#0D0D0F] border border-[#333]"
+                    className="w-full p-2 rounded transition-all duration-300 focus:outline-none focus:ring-2"
+                    style={{
+                      backgroundColor: "var(--bg)",
+                      color: "var(--text)",
+                      border: "1px solid rgba(var(--text-rgb), 0.3)",
+                    }}
+                    onFocus={(e) =>
+                      (e.target.style.boxShadow = "0 0 0 2px var(--secondary)")
+                    }
+                    onBlur={(e) => (e.target.style.boxShadow = "none")}
                     onChange={(e) =>
                       handleFilterChange("region", e.target.value)
                     }
@@ -411,13 +520,39 @@ const Movies = () => {
               <div className="flex flex-wrap gap-4 justify-center">
                 <div
                   onClick={applyFilters}
-                  className="bg-[#333] text-white  px-6 py-3 rounded-lg hover:bg-[#444] flex items-center gap-2 hover:cursor-pointer"
+                  className="text-theme px-6 py-3 rounded-lg flex items-center gap-2 hover:cursor-pointer transition-all duration-300"
+                  style={{
+                    backgroundColor: "rgba(var(--text-rgb), 0.2)",
+                    border: "1px solid var(--secondary)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = "var(--secondary)";
+                    e.target.style.color = "var(--bg)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor =
+                      "rgba(var(--text-rgb), 0.2)";
+                    e.target.style.color = "var(--text)";
+                  }}
                 >
                   <Search size={18} /> Apply Filters
                 </div>
                 <div
                   onClick={resetFilters}
-                  className="bg-[#333] text-white px-6 py-3 rounded-lg hover:bg-[#444] flex items-center gap-2 hover:cursor-pointer"
+                  className="text-theme px-6 py-3 rounded-lg flex items-center gap-2 hover:cursor-pointer transition-all duration-300"
+                  style={{
+                    backgroundColor: "rgba(var(--text-rgb), 0.2)",
+                    border: "1px solid var(--highlight)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = "var(--highlight)";
+                    e.target.style.color = "var(--bg)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor =
+                      "rgba(var(--text-rgb), 0.2)";
+                    e.target.style.color = "var(--text)";
+                  }}
                 >
                   <RotateCcw size={18} /> Reset Filters
                 </div>
@@ -427,7 +562,10 @@ const Movies = () => {
 
           {/* Movies Grid */}
           {displayMovies.length === 0 ? (
-            <div className="text-center text-[#B3B3B3] py-12">
+            <div
+              className="text-center py-12"
+              style={{ color: "rgba(var(--text-rgb), 0.7)" }}
+            >
               No movies found.
             </div>
           ) : (
@@ -444,7 +582,24 @@ const Movies = () => {
               <div
                 onClick={loadMoreMovies}
                 disabled={loadingMore}
-                className="bg-[#f67c02] text-black px-6 py-3 rounded-lg hover:bg-[#e56700] flex items-center gap-2 hover:cursor-pointer mb-4"
+                className="text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:cursor-pointer mb-4 transition-all duration-300"
+                style={{
+                  backgroundColor: "var(--primary)",
+                  border: "1px solid var(--primary)",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = "var(--secondary)";
+                  e.target.style.borderColor = "var(--secondary)";
+                  e.target.style.transform = "translateY(-2px)";
+                  e.target.style.boxShadow =
+                    "0 5px 15px rgba(var(--secondary-rgb), 0.4)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = "var(--primary)";
+                  e.target.style.borderColor = "var(--primary)";
+                  e.target.style.transform = "translateY(0)";
+                  e.target.style.boxShadow = "none";
+                }}
               >
                 {loadingMore ? (
                   <LoaderCircle className="animate-spin" size={20} />
@@ -457,7 +612,10 @@ const Movies = () => {
           )}
 
           {!hasMore && displayMovies.length > 20 && (
-            <p className="text-center text-[#B3B3B3] mt-8">
+            <p
+              className="text-center mt-8"
+              style={{ color: "rgba(var(--text-rgb), 0.7)" }}
+            >
               You've reached the end of the list.
             </p>
           )}
